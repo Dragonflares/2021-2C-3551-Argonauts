@@ -29,19 +29,6 @@ namespace TGC.MonoGame.TP
             Game = game;
             time = 0;
             
-            //BufferPool = new BufferPool();
-            //Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(),
-            //    new PoseIntegratorCallbacks(new NumericVector3(0, -100, 0)), new PositionFirstTimestepper());
-            //Simulation.Statics.Add(new StaticDescription(new NumericVector3(0, -0.5f, 0),
-            //    new CollidableDescription(Simulation.Shapes.Add(new Box(2000, 1, 2000)), 0.1f)));
-            
-            /*var boxIndex = Simulation.Shapes.Add(boxShape);
-            var position = new NumericVector3(-30 + i * 10 + 1, j * 10 + 1, -40);
-
-            var bodyDescription = BodyDescription.CreateDynamic(position, boxInertia,
-                new CollidableDescription(boxIndex, 0.1f), new BodyActivityDescription(0.01f));
-
-            var bodyHandle = Simulation.Bodies.Add(bodyDescription);*/
         }
 
 

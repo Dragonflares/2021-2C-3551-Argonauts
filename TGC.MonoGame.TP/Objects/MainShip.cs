@@ -83,9 +83,6 @@ namespace TGC.MonoGame.TP.Objects
             // Then set its orientation!
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
-            /*
-            ShipBox = BoundingVolumesExtensions.CreateAABBFrom(modelo);
-            ShipBox = new BoundingBox((ShipBox.Min + Position)*initialScale, (ShipBox.Max + Position)*initialScale);*/
         }
 
         public void Draw()
@@ -119,18 +116,12 @@ namespace TGC.MonoGame.TP.Objects
                 cannon.Update(gameTime);
             }
 
-            //var Checkmove = false;
             ProcessKeyboard(_game.ElapsedTime);
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
-            //ShipBox = new BoundingBox(ShipBox..Min + (Position - PositionAnterior), ShipBox.Max+ (Position - PositionAnterior));
-            
-            //ShipBox.Center = Position;
             
             ShipBox.Center = Position;
-
-                // Test against every wall. If there was a collision, move our Cylinder back to its original position
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)
                     if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
                     {
@@ -145,24 +136,6 @@ namespace TGC.MonoGame.TP.Objects
                     }
                 
             PositionAnterior = Position;
-
-            
-            /*
-            for (int ship = 0; ship < _game.CountEnemyShip; ship++)
-            {
-                if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
-                {
-                    Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp,
-                        DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    Game.spriteBatch.Draw(game.Life2,
-                        new Rectangle(Game.GraphicsDevice.Viewport.Width /2, 10,
-                            200, 30), Color.White);
-                    Game.spriteBatch.End();
-                    Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-                    Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-                    Game.GraphicsDevice.BlendState = BlendState.Opaque;
-                }
-            }*/
         }
 
         public void Move()
