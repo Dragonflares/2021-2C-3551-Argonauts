@@ -38,9 +38,12 @@ namespace TGC.MonoGame.TP.Objects
 
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
-        private int Life = 50;
+        private int Life = 100;
         private SpriteFont SpriteFont;
-
+        public OrientedBoundingBox ShipBox { get; set; }
+        private bool AreAABBsTouching { get; set; }
+        private float initialScale;
+        //private Vector3 PositionAnterior;
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
             speed = 0;
@@ -60,6 +63,7 @@ namespace TGC.MonoGame.TP.Objects
             SoundShotName = "Shot";
             _game = game;
             SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
+            initialScale = 0.01f;
         }
 
         public void LoadContent()
@@ -67,6 +71,21 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
+            //RobotTwoBox = new BoundingBox(RobotOneBox.Min + RobotTwoPosition, RobotOneBox.Max + RobotTwoPosition);
+            
+            var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
+            // Scale it to match the model's transform
+            temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
+            // Create an Oriented Bounding Box from the AABB
+            ShipBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+            // Move the center
+            ShipBox.Center = Position;
+            // Then set its orientation!
+            ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
+            
+            /*
+            ShipBox = BoundingVolumesExtensions.CreateAABBFrom(modelo);
+            ShipBox = new BoundingBox((ShipBox.Min + Position)*initialScale, (ShipBox.Max + Position)*initialScale);*/
         }
 
         public void Draw()
@@ -85,7 +104,7 @@ namespace TGC.MonoGame.TP.Objects
             _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             _game.GraphicsDevice.BlendState = BlendState.Opaque;
             modelo.Draw(
-                Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(0.01f) *
+                Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
                 Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
             foreach (var cannon in cannonBalls)
             {
@@ -99,10 +118,51 @@ namespace TGC.MonoGame.TP.Objects
             {
                 cannon.Update(gameTime);
             }
+
+            //var Checkmove = false;
             ProcessKeyboard(_game.ElapsedTime);
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
+            //ShipBox = new BoundingBox(ShipBox..Min + (Position - PositionAnterior), ShipBox.Max+ (Position - PositionAnterior));
+            
+            //ShipBox.Center = Position;
+            
+            ShipBox.Center = Position;
+
+                // Test against every wall. If there was a collision, move our Cylinder back to its original position
+            for (int ship = 0; ship < _game.CountEnemyShip; ship++)
+                    if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
+                    {
+                        ShipBox.Center = PositionAnterior;
+                        Position = PositionAnterior;
+                        currentGear = 0;
+                        HandBrake = false;
+                        pressedReverse = false;
+                        pressedAccelerator = false;
+                        speed = 0;
+                        break;
+                    }
+                
+            PositionAnterior = Position;
+
+            
+            /*
+            for (int ship = 0; ship < _game.CountEnemyShip; ship++)
+            {
+                if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
+                {
+                    Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp,
+                        DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                    Game.spriteBatch.Draw(game.Life2,
+                        new Rectangle(Game.GraphicsDevice.Viewport.Width /2, 10,
+                            200, 30), Color.White);
+                    Game.spriteBatch.End();
+                    Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                    Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+                    Game.GraphicsDevice.BlendState = BlendState.Opaque;
+                }
+            }*/
         }
 
         public void Move()

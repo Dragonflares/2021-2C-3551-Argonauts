@@ -41,6 +41,7 @@ namespace TGC.MonoGame.TP.Objects
         private int Life = 50;
         private SpriteFont SpriteFont;
         private float initialScale;
+        public OrientedBoundingBox ShipBox { get; set; }
         public EnemyShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
             var rnd = new Random();
@@ -79,6 +80,19 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
+            
+            var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
+            temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
+            // Create an Oriented Bounding Box from the AABB
+            ShipBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+            // Move the center
+            ShipBox.Center = Position;
+            // Then set its orientation!
+            ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
+            
+            /*
+            ShipBox = BoundingVolumesExtensions.CreateAABBFrom(modelo);
+            ShipBox = new BoundingBox((ShipBox.Min + Position)*initialScale, (ShipBox.Max + Position)*initialScale);*/
         }
 
         public void Draw()
