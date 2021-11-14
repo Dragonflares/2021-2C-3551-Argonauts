@@ -39,7 +39,10 @@ namespace TGC.MonoGame.TP
             Game.MainShip.Draw();
             for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
             {
-                Game.EnemyShips[eShip].Draw();
+                if (Game.EnemyShips[eShip].Life > 0)
+                {
+                    Game.EnemyShips[eShip].Draw();
+                }
             }
 
             

@@ -38,10 +38,11 @@ namespace TGC.MonoGame.TP.Objects
 
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
-        private int Life = 50;
+        public int Life = 50;
         private SpriteFont SpriteFont;
         private float initialScale;
         public OrientedBoundingBox ShipBox { get; set; }
+        private bool Active;
         public EnemyShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
             var rnd = new Random();
@@ -121,6 +122,10 @@ namespace TGC.MonoGame.TP.Objects
             }
         }
 
+        public void Shoted()
+        {
+            Life--;
+        }
         public void Update(GameTime gameTime)
         {
             /*
@@ -210,7 +215,7 @@ namespace TGC.MonoGame.TP.Objects
                 }
 
                 var endPosition = aux * normal + _game.Camera.Position;
-                cannonBalls.Add(new CannonBall(StartPositionCannon + Position, endPosition, _game, cannonBall));
+                cannonBalls.Add(new CannonBall(StartPositionCannon + Position, endPosition, _game, cannonBall, null, this));
 
             }
 

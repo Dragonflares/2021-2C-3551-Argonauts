@@ -213,7 +213,7 @@ namespace TGC.MonoGame.TP.Objects
                     aux = (float)-_game.Camera.Position.Y / normal.Y;
                 }
                 var endPosition = aux * normal + _game.Camera.Position;
-                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall));
+                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
                 
             }
 
@@ -291,6 +291,11 @@ namespace TGC.MonoGame.TP.Objects
                 HandBrake = true;
                 currentGear = 0;
             }
-        }   
+        }
+
+        public void Shoted()
+        {
+            Life--;
+        }
     }
 }
