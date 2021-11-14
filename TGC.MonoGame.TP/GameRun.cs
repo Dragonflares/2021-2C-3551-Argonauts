@@ -73,7 +73,10 @@ namespace TGC.MonoGame.TP
         public void Update(GameTime gameTime)
         {
             Game.MainShip.Update(gameTime);
+            //Game.Camera.SetPosition(Game.MainShip.Position + new Vector3((float)Math.Cos(Game.MainShip.anguloDeGiro+Game.MainShip.anguloInicial),0,(float)Math.Sin(Game.MainShip.anguloDeGiro+Game.MainShip.anguloInicial)));
+            Game.Camera.SetPosition(Game.MainShip.Position);
             Game.Camera.Update(gameTime);
+            
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Game.GameState = "PAUSE";

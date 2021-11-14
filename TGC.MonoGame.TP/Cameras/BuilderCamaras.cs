@@ -111,5 +111,25 @@ namespace TGC.MonoGame.Samples.Cameras
             View = CurrentCamera.View;
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);;
         }
+
+        public override void SetPosition(Vector3 position)
+        {
+            if (CurrentCamera == Cameras[0])
+            {
+                CurrentCamera.SetPosition(position+new Vector3(0,CenterPosition.Y,0) + (CenterPosition.X+ CenterPosition.Z)* new Vector3((float)Math.Sin(MainShip.anguloDeGiro),0,(float)Math.Cos(MainShip.anguloDeGiro)));
+            }
+            else
+            {
+                if (CurrentCamera == Cameras[1])
+                {
+                    CurrentCamera.SetPosition(position+new Vector3(0,FrontPosition.Y,0)+(FrontPosition.X+FrontPosition.Z) * new Vector3((float)Math.Sin(MainShip.anguloDeGiro),0,(float)Math.Cos(MainShip.anguloDeGiro)));
+                }
+                else
+                {
+                    CurrentCamera.SetPosition(position);
+                }
+            }
+            
+        }
     }
 }
