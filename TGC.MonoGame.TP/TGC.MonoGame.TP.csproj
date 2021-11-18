@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -44,5 +45,8 @@
     <Compile Remove="Content\Models\pruebita\**" />
     <Compile Remove="Objects\FullScreenSquad.cs" />
     <Compile Remove="Game.cs" />
+    <Compile Remove="Objects\Gizmos.cs" />
+    <Compile Remove="Objects\GizmosCube.cs" />
+    <Compile Remove="Objects\GizmoGeometri.cs" />
   </ItemGroup>
 </Project>

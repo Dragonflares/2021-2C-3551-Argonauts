@@ -5,17 +5,30 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
 using Microsoft.Xna.Framework.Media;
-
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
+using System;
+using System.Collections.Generic;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using NumericVector3 = System.Numerics.Vector3;
 namespace TGC.MonoGame.TP
 {
     internal class GameRun
     {
         private TGCGame Game;
+        private Simulation Simulation { get; set; }
+        private BufferPool BufferPool { get; set; }
         private float time;
         public GameRun(TGCGame game)
         {
             Game = game;
             time = 0;
+            
         }
 
 
@@ -23,10 +36,15 @@ namespace TGC.MonoGame.TP
         {
             
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
-            
             Game.MainShip.Draw();
-            Game.Barco2.Draw(Game.World * Matrix.CreateTranslation(120, 25, 0), Game.Camera.View, Game.Camera.Projection);
-            Game.Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Game.Camera.View, Game.Camera.Projection);
+            for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
+            {
+                if (Game.EnemyShips[eShip].Life > 0)
+                {
+                    Game.EnemyShips[eShip].Draw();
+                }
+            }
+
             
             
             Game.Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Game.Camera.View, Game.Camera.Projection);
@@ -48,12 +66,17 @@ namespace TGC.MonoGame.TP
                 Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
                 Game.GraphicsDevice.BlendState = BlendState.Opaque;
             }
+            
+            
         }
 
         public void Update(GameTime gameTime)
         {
             Game.MainShip.Update(gameTime);
+            //Game.Camera.SetPosition(Game.MainShip.Position + new Vector3((float)Math.Cos(Game.MainShip.anguloDeGiro+Game.MainShip.anguloInicial),0,(float)Math.Sin(Game.MainShip.anguloDeGiro+Game.MainShip.anguloInicial)));
+            Game.Camera.SetPosition(Game.MainShip.Position);
             Game.Camera.Update(gameTime);
+            
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Game.GameState = "PAUSE";

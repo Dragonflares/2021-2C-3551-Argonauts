@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepuPhysics.Constraints.Contact;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -21,8 +22,11 @@ namespace TGC.MonoGame.TP.Objects
         private float cont = 0f;
         private double DurationTotal = 0 ;
         private float Angulo = 0f;
-        
-        public CannonBall(Vector3 initialPosition, Vector3 endPosition,TGCGame game, Model model)
+        private bool Active = true;
+        public OrientedBoundingBox CannonBallBox { get; set; }
+        private MainShip origenMain;
+        private EnemyShip origenEnemy;
+        public CannonBall(Vector3 initialPosition, Vector3 endPosition,TGCGame game, Model model, MainShip origenMain, EnemyShip origenEnemy )
         {
             cannonBall = model;
             Game = game;
@@ -38,6 +42,18 @@ namespace TGC.MonoGame.TP.Objects
             var duracion = distancia.Length()*0.001;
             Velocidad = (distancia + new Vector3(0, (float) 9.8 + 1000, 0) * (float) duracion * (float) duracion) /
                           (float) duracion;
+            
+            var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(model);
+            // Scale it to match the model's transform
+            temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, Scale0);
+            // Create an Oriented Bounding Box from the AABB
+            CannonBallBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+            // Move the center
+            CannonBallBox.Center = PositionActual;
+            // Then set its orientation!
+            CannonBallBox.Orientation = Matrix.CreateRotationY(Rotate0);
+            this.origenMain = origenMain;
+            this.origenEnemy = origenEnemy;
         }
 
         public void Draw()
@@ -57,9 +73,17 @@ namespace TGC.MonoGame.TP.Objects
             var y = (PositionActual - new Vector3(PositionActual.X, PositionAnterior.Y, PositionActual.Z)).Length();
             var x = (PositionAnterior - new Vector3(PositionActual.X, PositionAnterior.Y, PositionActual.Z)).Length();
             Angulo =(float) Math.Atan(y / x);
-            
-            
             PositionAnterior = PositionActual;
+            for (int ship = 0; ship < Game.CountEnemyShip; ship++)
+                if (CannonBallBox.Intersects(Game.EnemyShips[ship].ShipBox) && Game.EnemyShips[ship] != origenEnemy)
+                {
+                    Game.EnemyShips[ship].Shoted();
+                }
+
+            if (CannonBallBox.Intersects(Game.MainShip.ShipBox) && Game.MainShip != origenMain)
+            {
+                Game.MainShip.Shoted();
+            }
         }
 
     }

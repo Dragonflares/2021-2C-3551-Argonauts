@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -35,19 +36,10 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        public Model Model { get; set; }
-        public Model island { get; set; }
         
         public Model Rock { get; set; }
-        private Model Barco { get; set; }
-        private Vector3 BarcoPositionCenter = new Vector3(-200f, -10, 0);
-        public Model Barco2 { get; set; }
-        public Model Barco3 { get; set; }
-        private Model Projektil { get; set; }
+        private Vector3 BarcoPositionCenter = new Vector3(-1000f, -10, 0);
         
-        private Model Projektil2 { get; set; }
-        public Model Terreno2 { get; set; }
-        public Model islandTwo { get; set; }
         public Model[] islands { get; set; }
 
         public Vector3[] posicionesIslas;
@@ -59,6 +51,8 @@ namespace TGC.MonoGame.TP
         
         public MainShip MainShip;
 
+        public EnemyShip[] EnemyShips;
+        public int CountEnemyShip = 10;
         public float ElapsedTime = 0;
         private Song Song { get; set; }
         private string SongName { get; set; }
@@ -66,8 +60,11 @@ namespace TGC.MonoGame.TP
         public SpriteBatch spriteBatch ;
 
         public Texture2D Mira;
+        public Texture2D Life;
+        public Texture2D Life2;
         private GameRun gameRun;
         private Menu menu;
+        
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
 
 
@@ -91,6 +88,11 @@ namespace TGC.MonoGame.TP
             World = Matrix.CreateRotationY(MathHelper.Pi);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 10, this );
+            EnemyShips = new EnemyShip[CountEnemyShip];
+            for (int eShip = 0; eShip < CountEnemyShip; eShip++)
+            {
+                EnemyShips[eShip] = new EnemyShip(new Vector3(400f, 10f, eShip * 1300 -1300*CountEnemyShip/2), new Vector3(0,0,0),10,this);
+            }
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip, GameState == "START");
             gameRun = new GameRun(this);
             menu = new Menu(this);
@@ -112,13 +114,16 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             MainShip.LoadContent();
-            // Cargo el modelo del logo.
-            Barco2 = Content.Load<Model>(ContentFolder3D + "Barco2/Barco2");
-            Barco3 = Content.Load<Model>(ContentFolder3D + "Barco3");
+            for (int eShip = 0; eShip < CountEnemyShip; eShip++)
+            {
+                EnemyShips[eShip].LoadContent();
+            }
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
             ocean = new Water(Content);
             islands = new Model[cantIslas];
             Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
+            Life = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida");
+            Life2 = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida 3");
             for (int isla = 0; isla < cantIslas; isla++)
             {
                 islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));

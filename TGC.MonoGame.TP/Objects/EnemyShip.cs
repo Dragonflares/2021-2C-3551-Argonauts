@@ -8,7 +8,7 @@ using static TGC.MonoGame.TP.Objects.CannonBall;
 
 namespace TGC.MonoGame.TP.Objects
 {
-    public class MainShip
+    public class EnemyShip
     {
         public Vector3 Position { get; set; }
         public Vector3 PositionAnterior { get; set; }
@@ -32,20 +32,31 @@ namespace TGC.MonoGame.TP.Objects
         public string ModelName;
         public string SoundShotName;
         private Boolean CanShoot { get; set; }
-        
+
         private Model cannonBall { get; set; }
-        private List <CannonBall> cannonBalls= new List <CannonBall>();
+        private List<CannonBall> cannonBalls = new List<CannonBall>();
 
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
-        private int Life = 100;
+        public int Life = 50;
         private SpriteFont SpriteFont;
-        public OrientedBoundingBox ShipBox { get; set; }
-        private bool AreAABBsTouching { get; set; }
         private float initialScale;
-        //private Vector3 PositionAnterior;
-        public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
+        public OrientedBoundingBox ShipBox { get; set; }
+        private bool Active;
+        public EnemyShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
+            var rnd = new Random();
+            var BarcoIndex = rnd.Next(2);
+            if (BarcoIndex == 0)
+            {
+                ModelName = "Barco2/Barco2";
+                initialScale = 1;
+            }
+            else
+            {
+                ModelName = "Barco3";
+                initialScale = 1;
+            }
             speed = 0;
             Position = initialPosition;
             PositionAnterior = Position;
@@ -53,17 +64,16 @@ namespace TGC.MonoGame.TP.Objects
             maxspeed = MaxSpeed;
             maxacceleration = 0.1f;
             anguloDeGiro = 0f;
-            anguloInicial = (float) (Math.PI/2);
+            anguloInicial = (float) (Math.PI / 2);
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
             HandBrake = false;
             pressedReverse = false;
-            ModelName = "Barco";
+            
             SoundShotName = "Shot";
             _game = game;
             SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
-            initialScale = 0.01f;
         }
 
         public void LoadContent()
@@ -71,10 +81,8 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
-            //RobotTwoBox = new BoundingBox(RobotOneBox.Min + RobotTwoPosition, RobotOneBox.Max + RobotTwoPosition);
             
             var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
-            // Scale it to match the model's transform
             temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
             // Create an Oriented Bounding Box from the AABB
             ShipBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
@@ -83,23 +91,28 @@ namespace TGC.MonoGame.TP.Objects
             // Then set its orientation!
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
+            /*
+            ShipBox = BoundingVolumesExtensions.CreateAABBFrom(modelo);
+            ShipBox = new BoundingBox((ShipBox.Min + Position)*initialScale, (ShipBox.Max + Position)*initialScale);*/
         }
 
         public void Draw()
         {
+            /*
             _game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            _game.spriteBatch.DrawString(SpriteFont, Life.ToString(), new Vector2(_game.GraphicsDevice.Viewport.Width - 110, 50), Color.White);
+            _game.spriteBatch.DrawString(SpriteFont, Life.ToString(),
+                new Vector2(_game.GraphicsDevice.Viewport.Width - 110, 50), Color.White);
             _game.spriteBatch.Draw(_game.Life,
                 new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
                     200, 30), Color.White);
             _game.spriteBatch.Draw(_game.Life2,
                 new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
-                    Life *2, 30), Color.Green);
+                    Life * 2, 30), Color.Green);
             _game.spriteBatch.End();
             _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            _game.GraphicsDevice.BlendState = BlendState.Opaque;
+            _game.GraphicsDevice.BlendState = BlendState.Opaque;*/
             modelo.Draw(
                 Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
                 Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
@@ -109,47 +122,35 @@ namespace TGC.MonoGame.TP.Objects
             }
         }
 
+        public void Shoted()
+        {
+            Life--;
+        }
         public void Update(GameTime gameTime)
         {
+            /*
             foreach (var cannon in cannonBalls)
             {
                 cannon.Update(gameTime);
             }
-
             ProcessKeyboard(_game.ElapsedTime);
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
-            Move();
-            
-            ShipBox.Center = Position;
-            for (int ship = 0; ship < _game.CountEnemyShip; ship++)
-                    if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
-                    {
-                        ShipBox.Center = PositionAnterior;
-                        Position = PositionAnterior;
-                        currentGear = 0;
-                        HandBrake = false;
-                        pressedReverse = false;
-                        pressedAccelerator = false;
-                        speed = 0;
-                        break;
-                    }
-                
-            PositionAnterior = Position;
+            Move();*/
         }
 
         public void Move()
         {
-            var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
+            var newOrientacion = new Vector3((float) Math.Sin(anguloDeGiro), 0, (float) Math.Cos(anguloDeGiro));
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
             //var extraSpeed = 10;
-            var extraSpeed=0;
+            var extraSpeed = 0;
             if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
-            
-            Position += orientacion*speed ;
+
+            Position += orientacion * speed;
             if (PositionAnterior.Y < Position.Y)
             {
                 Position -= orientacion * speed * (0.25f * (Position.Y - PositionAnterior.Y));
@@ -206,15 +207,16 @@ namespace TGC.MonoGame.TP.Objects
                 var aux = (float) 0;
                 if (normal.Y >= 0)
                 {
-                    aux =(float) 10000000;
+                    aux = (float) 10000000;
                 }
                 else
                 {
-                    aux = (float)-_game.Camera.Position.Y / normal.Y;
+                    aux = (float) -_game.Camera.Position.Y / normal.Y;
                 }
+
                 var endPosition = aux * normal + _game.Camera.Position;
-                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
-                
+                cannonBalls.Add(new CannonBall(StartPositionCannon + Position, endPosition, _game, cannonBall, null, this));
+
             }
 
             if (!mouseState.RightButton.Equals(ButtonState.Pressed))
@@ -235,7 +237,7 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     if (anguloDeGiro + giroBase >= MathF.PI * 2)
                     {
-                        anguloDeGiro +=  giroBase - MathF.PI * 2;
+                        anguloDeGiro += giroBase - MathF.PI * 2;
                     }
                     else
                     {
@@ -253,7 +255,7 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     if (anguloDeGiro + giroBase < 0)
                     {
-                        anguloDeGiro += - giroBase + MathF.PI * 2;
+                        anguloDeGiro += -giroBase + MathF.PI * 2;
                     }
                     else
                     {
@@ -291,11 +293,6 @@ namespace TGC.MonoGame.TP.Objects
                 HandBrake = true;
                 currentGear = 0;
             }
-        }
-
-        public void Shoted()
-        {
-            Life--;
         }
     }
 }
