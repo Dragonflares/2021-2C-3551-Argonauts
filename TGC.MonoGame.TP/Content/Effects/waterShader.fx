@@ -155,6 +155,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     VertexShaderOutput output = (VertexShaderOutput)0;
 
     // Model space to World space
+    input.Position.y += sin( (input.Position.x*0.1 + Time)) ;
     float4 worldPosition = mul(input.Position, World);
 
     //createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {
@@ -258,7 +259,8 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float3 specularLight = sign(NdotL) * KSpecular * specColor * pow(saturate(NdotH), shininess);
     float4 finalColor = float4(lerp(baseColor, reflectionColor * KReflection, 0.5) + specularLight, 1) * alturaY;
 
-    return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
+    //return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
+    return float4(baseColor,1);
 
 }
 
