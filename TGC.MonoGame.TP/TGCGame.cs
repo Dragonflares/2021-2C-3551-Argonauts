@@ -96,8 +96,16 @@ namespace TGC.MonoGame.TP
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip, GameState == "START");
             gameRun = new GameRun(this);
             menu = new Menu(this);
-            posicionesIslas = new[] { new Vector3(-3000f, -60f, 200f) ,new Vector3(2000f,-60f,400f),new Vector3(1500f,-60f,200f), new Vector3(-4500f,-60f,-600f),new Vector3(-2000f,-60f,-1500f),
-                new Vector3(4000f,-60f,-1500f),new Vector3(500f,-60f,-3000f),new Vector3(0,-60f,-4000f), new Vector3 (-2000f,-60f,0)};
+            posicionesIslas = new[] { 
+                new Vector3(-3000f, -60f, 200f) ,
+                new Vector3(2000f,-60f,400f),
+                new Vector3(1500f,-60f,200f),
+                new Vector3(-4500f,-60f,-600f),
+                new Vector3(-2000f,-60f,-1500f),
+                new Vector3(4000f,-60f,-1500f),
+                new Vector3(500f,-60f,-3000f),
+                new Vector3(0,-60f,-4000f), 
+                new Vector3 (-2000f,-60f,0)};
 
             cantIslas = posicionesIslas.Length;
             

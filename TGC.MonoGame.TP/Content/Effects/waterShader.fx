@@ -155,7 +155,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     VertexShaderOutput output = (VertexShaderOutput)0;
 
     // Model space to World space
-    input.Position.y += sin( (input.Position.x*0.1 + Time)) ;
+    input.Position.y += sin( (abs(input.Position.x*0.1) +Time)) ;
     float4 worldPosition = mul(input.Position, World);
 
     //createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {

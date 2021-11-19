@@ -13,7 +13,8 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class Water
     {
-        public const float WaterGrid = 5000f;
+        public const float WaterGrid = 4900f;
+        //public const float WaterGrid = 5000f;
         private Model Model { get; set; }
         private List<Matrix> WorldWaterMatrix{ get; set; }
         private Effect Effect { get; set; }
@@ -87,8 +88,11 @@ namespace TGC.MonoGame.TP
                 {
                     Effect.Parameters["World"].SetValue(meshWorld * waterMatrix);
                     mesh.Draw();
+                    
                 }
+                
             }
+            
 
         }
     }
