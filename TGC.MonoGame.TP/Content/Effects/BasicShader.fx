@@ -19,7 +19,7 @@ float4x4 Projection;
 
 float3 DiffuseColor;
 
-float Time = 0;
+//float Time = 0;
 
 struct VertexShaderInput
 {
