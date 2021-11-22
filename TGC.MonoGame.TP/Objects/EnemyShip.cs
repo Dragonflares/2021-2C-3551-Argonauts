@@ -49,13 +49,17 @@ namespace TGC.MonoGame.TP.Objects
             var BarcoIndex = rnd.Next(2);
             if (BarcoIndex == 0)
             {
+                //Barco azul
                 ModelName = "Barco2/Barco2";
-                initialScale = 1;
+                initialScale = 1 ;
+                anguloInicial = 0;
             }
             else
-            {
+            {   //Barco rojo
                 ModelName = "Barco3";
-                initialScale = 1;
+                initialScale = 1 ;
+                anguloInicial = 0;
+                
             }
             speed = 0;
             Position = initialPosition;
@@ -64,7 +68,6 @@ namespace TGC.MonoGame.TP.Objects
             maxspeed = MaxSpeed;
             maxacceleration = 0.1f;
             anguloDeGiro = 0f;
-            anguloInicial = (float) (Math.PI / 2);
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
@@ -95,27 +98,71 @@ namespace TGC.MonoGame.TP.Objects
             ShipBox = BoundingVolumesExtensions.CreateAABBFrom(modelo);
             ShipBox = new BoundingBox((ShipBox.Min + Position)*initialScale, (ShipBox.Max + Position)*initialScale);*/
         }
+        private void DrawShip()
+        {
+            var dir = new Vector2(MathF.Cos(anguloDeGiro), MathF.Sin(anguloDeGiro));
+            var tan = new Vector2(-MathF.Sin(anguloDeGiro), MathF.Cos(anguloDeGiro));
+            var pos = new Vector2(Position.X,  Position.Z);
+            var pos_ade = pos + dir * 100;
+            var pos_der = pos + tan * 100;
+            var PosAdelante = new Vector3(pos_ade.X, _game.terrain.Height(pos_ade.X, pos_ade.Y), pos_ade.Y);
+            var PosDerecha = new Vector3(pos_der.X, _game.terrain.Height(pos_der.X, pos_der.Y), pos_der.Y);
+            
+            var matWorld = CalcularMatrizOrientacion(initialScale, new Vector3(pos.X, _game.terrain.Height(pos.X, pos.Y) +10, pos.Y), PosAdelante,
+                PosDerecha);
+
+            modelo.Draw(matWorld, _game.Camera.View, _game.Camera.Projection);
+        }
+        public Matrix CalcularMatrizOrientacion(float scale, Vector3 p0, Vector3 p1, Vector3 p2)
+        {
+            var matWorld = Matrix.CreateScale(scale);
+
+            // determino la orientacion
+            var Dir = p1 - p0;
+            Dir.Normalize();
+            var Tan = p2 - p0;
+            Tan.Normalize();
+            var VUP = Vector3.Cross(Tan, Dir);
+            VUP.Normalize();
+            Tan = Vector3.Cross(VUP, Dir);
+            Tan.Normalize();
+
+            var V = VUP;
+            var U = Tan;
+
+            var Orientacion = new Matrix();
+            Orientacion.M11 = U.X;
+            Orientacion.M12 = U.Y;
+            Orientacion.M13 = U.Z;
+            Orientacion.M14 = 0;
+
+            Orientacion.M21 = V.X;
+            Orientacion.M22 = V.Y;
+            Orientacion.M23 = V.Z;
+            Orientacion.M24 = 0;
+
+            Orientacion.M31 = Dir.X;
+            Orientacion.M32 = Dir.Y;
+            Orientacion.M33 = Dir.Z;
+            Orientacion.M34 = 0;
+
+            Orientacion.M41 = 0;
+            Orientacion.M42 = 0;
+            Orientacion.M43 = 0;
+            Orientacion.M44 = 1;
+            matWorld = matWorld * Orientacion;
+
+            // traslado
+            matWorld = matWorld * Matrix.CreateTranslation(p0);
+            return matWorld;
+        }
 
         public void Draw()
         {
-            /*
-            _game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            _game.spriteBatch.DrawString(SpriteFont, Life.ToString(),
-                new Vector2(_game.GraphicsDevice.Viewport.Width - 110, 50), Color.White);
-            _game.spriteBatch.Draw(_game.Life,
-                new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
-                    200, 30), Color.White);
-            _game.spriteBatch.Draw(_game.Life2,
-                new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
-                    Life * 2, 30), Color.Green);
-            _game.spriteBatch.End();
-            _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            _game.GraphicsDevice.BlendState = BlendState.Opaque;*/
-            modelo.Draw(
-                Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
-                Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
+            //modelo.Draw(
+            //    Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
+            //    Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
+            DrawShip();
             foreach (var cannon in cannonBalls)
             {
                 cannon.Draw();

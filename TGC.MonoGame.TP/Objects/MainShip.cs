@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP.Objects
 {
     public class MainShip
     {
-        public Vector3 Position { get; set; }
+        public Vector3 Position;
         public Vector3 PositionAnterior { get; set; }
         public float speed { get; set; }
         private float maxspeed { get; set; }
@@ -63,7 +63,7 @@ namespace TGC.MonoGame.TP.Objects
             SoundShotName = "Shot";
             _game = game;
             SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
-            initialScale = 0.01f;
+            initialScale = 0.03f;
         }
 
         public void LoadContent()
@@ -84,7 +84,63 @@ namespace TGC.MonoGame.TP.Objects
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
         }
+        private void DrawShip()
+        {
+            var dir = new Vector2(MathF.Sin(anguloDeGiro), MathF.Cos(anguloDeGiro));
+            var tan = new Vector2(-MathF.Cos(anguloDeGiro), MathF.Sin(anguloDeGiro));
+            var pos = new Vector2(Position.X,  Position.Z);
+            var pos_ade = pos + dir * 100;
+            var pos_der = pos + tan * 100;
+            var PosAdelante = new Vector3(pos_ade.X, _game.terrain.Height(pos_ade.X, pos_ade.Y), pos_ade.Y);
+            var PosDerecha = new Vector3(pos_der.X, _game.terrain.Height(pos_der.X, pos_der.Y), pos_der.Y);
+            
+            var matWorld = Matrix.CreateRotationY(anguloInicial)*CalcularMatrizOrientacion(initialScale, new Vector3(pos.X, _game.terrain.Height(pos.X, pos.Y) +10, pos.Y), PosAdelante,
+                PosDerecha);
+            modelo.Draw(matWorld, _game.Camera.View, _game.Camera.Projection);
+        }
+        public Matrix CalcularMatrizOrientacion(float scale, Vector3 p0, Vector3 p1, Vector3 p2)
+        {
+            var matWorld = Matrix.CreateScale(scale);
 
+            // determino la orientacion
+            var Dir = p1 - p0;
+            Dir.Normalize();
+            var Tan = p2 - p0;
+            Tan.Normalize();
+            var VUP = Vector3.Cross(Tan, Dir);
+            VUP.Normalize();
+            Tan = Vector3.Cross(VUP, Dir);
+            Tan.Normalize();
+
+            var V = VUP;
+            var U = Tan;
+
+            var Orientacion = new Matrix();
+            Orientacion.M11 = U.X;
+            Orientacion.M12 = U.Y;
+            Orientacion.M13 = U.Z;
+            Orientacion.M14 = 0;
+
+            Orientacion.M21 = V.X;
+            Orientacion.M22 = V.Y;
+            Orientacion.M23 = V.Z;
+            Orientacion.M24 = 0;
+
+            Orientacion.M31 = Dir.X;
+            Orientacion.M32 = Dir.Y;
+            Orientacion.M33 = Dir.Z;
+            Orientacion.M34 = 0;
+
+            Orientacion.M41 = 0;
+            Orientacion.M42 = 0;
+            Orientacion.M43 = 0;
+            Orientacion.M44 = 1;
+            matWorld = matWorld * Orientacion;
+
+            // traslado
+            matWorld = matWorld * Matrix.CreateTranslation(p0);
+            return matWorld;
+        }
         public void Draw()
         {
             _game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
@@ -100,9 +156,7 @@ namespace TGC.MonoGame.TP.Objects
             _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             _game.GraphicsDevice.BlendState = BlendState.Opaque;
-            modelo.Draw(
-                Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
-                Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
+            DrawShip();
             foreach (var cannon in cannonBalls)
             {
                 cannon.Draw();
@@ -122,6 +176,7 @@ namespace TGC.MonoGame.TP.Objects
             Move();
             
             ShipBox.Center = Position;
+            ShipBox.Orientation = Matrix.CreateRotationY(anguloDeGiro + anguloInicial);
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)
                     if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
                     {
@@ -150,6 +205,7 @@ namespace TGC.MonoGame.TP.Objects
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
             
             Position += orientacion*speed ;
+            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
             if (PositionAnterior.Y < Position.Y)
             {
                 Position -= orientacion * speed * (0.25f * (Position.Y - PositionAnterior.Y));
@@ -228,10 +284,7 @@ namespace TGC.MonoGame.TP.Objects
             var keyboardState = Keyboard.GetState();
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                if (speed == 0)
-                {
-                }
-                else
+                if (speed != 0)
                 {
                     if (anguloDeGiro + giroBase >= MathF.PI * 2)
                     {
@@ -246,11 +299,7 @@ namespace TGC.MonoGame.TP.Objects
 
             if (keyboardState.IsKeyDown(Keys.A))
             {
-                if (speed == 0)
-                {
-                }
-                else
-                {
+                if (speed != 0){
                     if (anguloDeGiro + giroBase < 0)
                     {
                         anguloDeGiro += - giroBase + MathF.PI * 2;

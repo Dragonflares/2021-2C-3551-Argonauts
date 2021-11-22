@@ -36,6 +36,9 @@ namespace TGC.MonoGame.TP
         {
             
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
+            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);
             Game.MainShip.Draw();
             for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
             {
@@ -52,8 +55,7 @@ namespace TGC.MonoGame.TP
             {
                 Game.islands[isla].Draw(Game.World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(Game.posicionesIslas[isla]), Game.Camera.View, Game.Camera.Projection);
             }
-            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
+            
             if (Game.Camera.CanShoot)
             {
                 Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,

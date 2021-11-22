@@ -23,7 +23,6 @@ namespace TGC.MonoGame.TP
         private Effect BarcoEffect;
         public Song Song { get; set; }
         private SoundEffect soundButtom { get; set; }
-        private Water2 terrain;
         public Menu(TGCGame game)
         {
             Game = game;
@@ -38,7 +37,7 @@ namespace TGC.MonoGame.TP
             soundButtom = Game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + "Button");
             Song = Game.Content.Load<Song>(TGCGame.ContentFolderMusic + "Menu");
             MediaPlayer.IsRepeating = true;
-            terrain = new Water2(Game.GraphicsDevice,  game);
+            
         }
 
         private void DrawShip(Model model, float angle)
@@ -48,40 +47,19 @@ namespace TGC.MonoGame.TP
             var pos = new Vector2(2000, -100);
             var pos_ade = pos + dir * 100;
             var pos_der = pos + tan * 100;
-            var PosAdelante = new Vector3(pos_ade.X, terrain.Height(pos_ade.X, pos_ade.Y), pos_ade.Y);
-            var PosDerecha = new Vector3(pos_der.X, terrain.Height(pos_der.X, pos_der.Y), pos_der.Y);
+            var PosAdelante = new Vector3(pos_ade.X, Game.terrain.Height(pos_ade.X, pos_ade.Y), pos_ade.Y);
+            var PosDerecha = new Vector3(pos_der.X, Game.terrain.Height(pos_der.X, pos_der.Y), pos_der.Y);
             
-            var matWorld = CalcularMatrizOrientacion(0.4f, new Vector3(pos.X, terrain.Height(pos.X, pos.Y) +10, pos.Y), PosAdelante,
+            var matWorld = CalcularMatrizOrientacion(0.4f, new Vector3(pos.X, Game.terrain.Height(pos.X, pos.Y) +10, pos.Y), PosAdelante,
                 PosDerecha);
 
-            // dibujo el mesh
-            /*
-            foreach (var mesh in model.Meshes)
-            {
-                BarcoEffect.Parameters["World"]?.SetValue(mesh.ParentBone.Transform*matWorld);
-                BarcoEffect.Parameters["View"]?.SetValue(Game.Camera.View);
-                BarcoEffect.Parameters["Projection"]?.SetValue(Game.Camera.Projection);
-                BarcoEffect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0,0,0));
-                
-                
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
-                    effect.World = matWorld;
-                    effect.View = Game.Camera.View;
-                    effect.Projection = Game.Camera.Projection;
-                }
-
-                mesh.Draw();
-            }*/
             model.Draw(matWorld, Game.Camera.View, Game.Camera.Projection);
         }
 
         public void Draw(GameTime gameTime)
         {
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
-            terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);
+            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);
             DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds);
             //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
             //Barco.Draw(

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
 using Microsoft.Xna.Framework.Media;
+using TGC.MonoGame.TP.Objects.Water;
 
 namespace TGC.MonoGame.TP
 {
@@ -64,7 +65,7 @@ namespace TGC.MonoGame.TP
         public Texture2D Life2;
         private GameRun gameRun;
         private Menu menu;
-        
+        public Water2 terrain;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
 
 
@@ -120,6 +121,7 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
+            terrain = new Water2(GraphicsDevice,  this);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             MainShip.LoadContent();
             for (int eShip = 0; eShip < CountEnemyShip; eShip++)
