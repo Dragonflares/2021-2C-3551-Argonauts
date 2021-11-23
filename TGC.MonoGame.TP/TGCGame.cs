@@ -151,7 +151,7 @@ namespace TGC.MonoGame.TP
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
-            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/islands/islands");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
             base.LoadContent();
