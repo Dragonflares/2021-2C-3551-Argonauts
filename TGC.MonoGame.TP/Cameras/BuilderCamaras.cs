@@ -19,11 +19,11 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultFarPlaneDistance = 200000000;
         //private static readonly Vector3 Position = new Vector3(-350, 50, 400);
         private Vector3 PositionBarco { get; set; }
-        private Vector3 CenterPosition = new Vector3(0, 42,62);
-        private Vector3 FrontPosition = new Vector3(0, 40,200);
+        private Vector3 CenterPosition = new Vector3(0, 142,62);
+        private Vector3 FrontPosition = new Vector3(0, 140,200);
         private static float Speed = 5;
         private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
-        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 10000, 0);
+        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 15000, 0);
         private List<Camera> Cameras { get; set; }
         private Camera CurrentCamera { get; set; }
         public MainShip MainShip { get; set; }
@@ -130,6 +130,15 @@ namespace TGC.MonoGame.Samples.Cameras
                 }
             }
             
+        }
+
+        public override Matrix GetView()
+        {
+            return CurrentCamera.View;
+        }
+        public override Matrix GetProjection()
+        {
+            return CurrentCamera.Projection;
         }
     }
 }

@@ -66,6 +66,7 @@ namespace TGC.MonoGame.TP
         private GameRun gameRun;
         private Menu menu;
         public Water2 terrain;
+        public SkyBox SkyBox;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
 
 
@@ -148,6 +149,11 @@ namespace TGC.MonoGame.TP
             MediaPlayer.IsRepeating = true;
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/islands/islands");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
             base.LoadContent();
         }
 

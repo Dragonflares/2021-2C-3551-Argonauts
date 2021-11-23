@@ -24,10 +24,16 @@ namespace TGC.MonoGame.TP
         private Simulation Simulation { get; set; }
         private BufferPool BufferPool { get; set; }
         private float time;
+        private Matrix Projection { get; set; }
+        private Matrix View { get; set; }
         public GameRun(TGCGame game)
         {
             Game = game;
             time = 0;
+            View = Matrix.CreateLookAt(new Vector3(0,0,0), new Vector3(1,0,0), Vector3.Up);
+            Projection =
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
+                    1000f);
             
         }
 
@@ -36,6 +42,17 @@ namespace TGC.MonoGame.TP
         {
             
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+            
+            
+            var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Game.GraphicsDevice.RasterizerState = rasterizerState;
+            Game.SkyBox.Draw(View, Projection, new Vector3(0,0,0));
+            Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+            
+            
+            
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
             Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);

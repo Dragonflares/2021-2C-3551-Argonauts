@@ -21,6 +21,9 @@ namespace TGC.MonoGame.TP
         public Texture2D botonesCurrentExit;
         private SpriteFont font;
         private Effect BarcoEffect;
+        private Matrix Projection { get; set; }
+        private Matrix View { get; set; }
+
         public Song Song { get; set; }
         private SoundEffect soundButtom { get; set; }
         public Menu(TGCGame game)
@@ -37,6 +40,10 @@ namespace TGC.MonoGame.TP
             soundButtom = Game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + "Button");
             Song = Game.Content.Load<Song>(TGCGame.ContentFolderMusic + "Menu");
             MediaPlayer.IsRepeating = true;
+            View = Matrix.CreateLookAt(new Vector3(0,0,0), new Vector3(1,0,0), Vector3.Up);
+            Projection =
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
+                    8000f);
             
         }
 
@@ -59,12 +66,15 @@ namespace TGC.MonoGame.TP
         public void Draw(GameTime gameTime)
         {
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+            var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Game.GraphicsDevice.RasterizerState = rasterizerState;
+            Game.SkyBox.Draw(View, Projection, new Vector3(0,0,0));
+            Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+            
             Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);
             DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds);
-            //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
-            //Barco.Draw(
-            //    Matrix.CreateRotationY( (float)Game.ElapsedTime) * Matrix.CreateScale(0.01f) *
-            //    Matrix.CreateTranslation(new Vector3(500,0,0)), Game.Camera.View, Game.Camera.Projection);
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             spriteBatch.Draw(botonesCurrentPlay,

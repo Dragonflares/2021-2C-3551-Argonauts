@@ -100,6 +100,15 @@ namespace TGC.MonoGame.Samples.Cameras
         {
             TargetPosition = position;
         }
+
+        public virtual Matrix GetView()
+        {
+            return View;
+        }
+        public virtual Matrix GetProjection()
+        {
+            return Projection;
+        }
         /// <summary>
         ///     Allows updating the internal state of the camera if this method is overwritten.
         ///     By default it does not perform any action.

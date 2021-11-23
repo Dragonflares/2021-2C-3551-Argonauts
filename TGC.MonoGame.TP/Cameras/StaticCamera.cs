@@ -21,6 +21,8 @@ namespace TGC.MonoGame.Samples.Cameras
             FrontDirection = frontDirection;
             UpDirection = upDirection;
             CanShoot = false;
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 0.1f,
+                8000f);
             BuildView();
         }
 
