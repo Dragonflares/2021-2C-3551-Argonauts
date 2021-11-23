@@ -42,6 +42,7 @@ namespace TGC.MonoGame.TP
         private Vector3 BarcoPositionCenter = new Vector3(-1000f, -10, 0);
         
         public Model[] islands { get; set; }
+        public islas[] Islas { get; set; }
 
         public Vector3[] posicionesIslas;
 
@@ -66,6 +67,8 @@ namespace TGC.MonoGame.TP
         private GameRun gameRun;
         private Menu menu;
         public Water2 terrain;
+        public Effect basicEffect;
+        public Texture2D islasTexture;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
 
 
@@ -98,15 +101,15 @@ namespace TGC.MonoGame.TP
             gameRun = new GameRun(this);
             menu = new Menu(this);
             posicionesIslas = new[] { 
-                new Vector3(-3000f, -60f, 200f) ,
-                new Vector3(2000f,-60f,400f),
-                new Vector3(1500f,-60f,200f),
-                new Vector3(-4500f,-60f,-600f),
-                new Vector3(-2000f,-60f,-1500f),
-                new Vector3(4000f,-60f,-1500f),
-                new Vector3(500f,-60f,-3000f),
-                new Vector3(0,-60f,-4000f), 
-                new Vector3 (-2000f,-60f,0)};
+                new Vector3(2000f, -200f, 0f) , //isla gr
+                new Vector3(-2000f, -100f, 0f) ,
+                new Vector3(0f, 0f, -2000f) ,
+                new Vector3(0f, -200f, 2000f) ,
+                new Vector3(0f, -200f, 0f) ,
+                new Vector3(-1500f, 0f, -4000f) ,
+                new Vector3(1500f, 0f, -4000f) , 
+                new Vector3(1500f, 0f, 4000f) , 
+                new Vector3(-1500f, 0f, 4000f) };
 
             cantIslas = posicionesIslas.Length;
             
@@ -120,7 +123,6 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             terrain = new Water2(GraphicsDevice,  this);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             MainShip.LoadContent();
@@ -130,19 +132,20 @@ namespace TGC.MonoGame.TP
             }
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
             ocean = new Water(Content);
-            islands = new Model[cantIslas];
+            //islands = new Model[cantIslas];
             Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
             Life = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida");
             Life2 = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida 3");
+            //basicEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            islasTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+            Islas = new islas[cantIslas];
             for (int isla = 0; isla < cantIslas; isla++)
             {
-                islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
+                Islas[isla] = new islas(posicionesIslas[isla],this,"islands/isla" + (isla + 1),"BasicShader");
+                Islas[isla].LoadContent();
             }
 
 
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            //Music
             SongName = "Game";
             Song = Content.Load<Song>(ContentFolderMusic + SongName);
             MediaPlayer.IsRepeating = true;

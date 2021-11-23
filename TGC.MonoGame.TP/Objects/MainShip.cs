@@ -189,7 +189,18 @@ namespace TGC.MonoGame.TP.Objects
                         speed = 0;
                         break;
                     }
-                
+            for (int isla = 0; isla < _game.cantIslas; isla++)
+                if (ShipBox.Intersects(_game.Islas[isla].IslasBox))
+                {
+                    ShipBox.Center = PositionAnterior;
+                    Position = PositionAnterior;
+                    currentGear = 0;
+                    HandBrake = false;
+                    pressedReverse = false;
+                    pressedAccelerator = false;
+                    speed = 0;
+                    break;
+                }
             PositionAnterior = Position;
         }
 
