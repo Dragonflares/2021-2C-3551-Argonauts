@@ -674,6 +674,19 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Ocean2.jpg
 
+
+#begin Textures/stones.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/stones.jpg
+
 #begin Textures/skybox1.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
