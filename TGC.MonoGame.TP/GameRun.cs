@@ -48,7 +48,7 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Game.GraphicsDevice.RasterizerState = rasterizerState;
-            Game.SkyBox.Draw(View, Projection, new Vector3(0,0,0));
+            Game.SkyBox.Draw(View, Projection, new Vector3(0,-200,0));
             Game.GraphicsDevice.RasterizerState = originalRasterizerState;
             
             
@@ -88,8 +88,14 @@ namespace TGC.MonoGame.TP
 
         public void Update(GameTime gameTime)
         {
+            for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
+            {
+                if (Game.EnemyShips[eShip].Life > 0)
+                {
+                    Game.EnemyShips[eShip].Update(gameTime);
+                }
+            }
             Game.MainShip.Update(gameTime);
-            //Game.Camera.SetPosition(Game.MainShip.Position + new Vector3((float)Math.Cos(Game.MainShip.anguloDeGiro+Game.MainShip.anguloInicial),0,(float)Math.Sin(Game.MainShip.anguloDeGiro+Game.MainShip.anguloInicial)));
             Game.Camera.SetPosition(Game.MainShip.Position);
             Game.Camera.Update(gameTime);
             

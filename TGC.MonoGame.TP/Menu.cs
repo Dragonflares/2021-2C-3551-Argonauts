@@ -70,7 +70,7 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Game.GraphicsDevice.RasterizerState = rasterizerState;
-            Game.SkyBox.Draw(View, Projection, new Vector3(0,0,0));
+            Game.SkyBox.Draw(View, Projection, new Vector3(0,-200,0));
             Game.GraphicsDevice.RasterizerState = originalRasterizerState;
             
             Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);

@@ -86,21 +86,22 @@ namespace TGC.MonoGame.TP.Objects
         }
         private void DrawShip()
         {
+
+            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
+            var matWorld = Matrix.CreateRotationY(anguloInicial)*Matrix.CreateScale(initialScale)*
+                           CalcularMatrizOrientacion( Position)
+                           *Matrix.CreateTranslation(Position);
+            modelo.Draw(matWorld, _game.Camera.View, _game.Camera.Projection);
+        }
+        public Matrix CalcularMatrizOrientacion(Vector3 p0)
+        {
             var dir = new Vector2(MathF.Sin(anguloDeGiro), MathF.Cos(anguloDeGiro));
             var tan = new Vector2(-MathF.Cos(anguloDeGiro), MathF.Sin(anguloDeGiro));
             var pos = new Vector2(Position.X,  Position.Z);
             var pos_ade = pos + dir * 100;
             var pos_der = pos + tan * 100;
-            var PosAdelante = new Vector3(pos_ade.X, _game.terrain.Height(pos_ade.X, pos_ade.Y), pos_ade.Y);
-            var PosDerecha = new Vector3(pos_der.X, _game.terrain.Height(pos_der.X, pos_der.Y), pos_der.Y);
-            
-            var matWorld = Matrix.CreateRotationY(anguloInicial)*CalcularMatrizOrientacion(initialScale, new Vector3(pos.X, _game.terrain.Height(pos.X, pos.Y) +10, pos.Y), PosAdelante,
-                PosDerecha);
-            modelo.Draw(matWorld, _game.Camera.View, _game.Camera.Projection);
-        }
-        public Matrix CalcularMatrizOrientacion(float scale, Vector3 p0, Vector3 p1, Vector3 p2)
-        {
-            var matWorld = Matrix.CreateScale(scale);
+            var p1 = new Vector3(pos_ade.X, _game.terrain.Height(pos_ade.X, pos_ade.Y), pos_ade.Y);
+            var p2 = new Vector3(pos_der.X, _game.terrain.Height(pos_der.X, pos_der.Y), pos_der.Y);
 
             // determino la orientacion
             var Dir = p1 - p0;
@@ -135,11 +136,7 @@ namespace TGC.MonoGame.TP.Objects
             Orientacion.M42 = 0;
             Orientacion.M43 = 0;
             Orientacion.M44 = 1;
-            matWorld = matWorld * Orientacion;
-
-            // traslado
-            matWorld = matWorld * Matrix.CreateTranslation(p0);
-            return matWorld;
+            return Orientacion;
         }
         public void Draw()
         {
@@ -174,9 +171,9 @@ namespace TGC.MonoGame.TP.Objects
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
-            
+            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
             ShipBox.Center = Position;
-            ShipBox.Orientation = Matrix.CreateRotationY(anguloDeGiro + anguloInicial);
+            ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)
                     if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
                     {

@@ -103,7 +103,7 @@ namespace TGC.MonoGame.TP
             menu = new Menu(this);
             posicionesIslas = new[] { 
                 new Vector3(2000f, -200f, 0f) , //isla gr
-                new Vector3(-2000f, -100f, 0f) ,
+                new Vector3(-2000f, -200f, 0f) ,
                 new Vector3(0f, 0f, -2000f) ,
                 new Vector3(0f, -200f, 2000f) ,
                 new Vector3(0f, -200f, 0f) ,
