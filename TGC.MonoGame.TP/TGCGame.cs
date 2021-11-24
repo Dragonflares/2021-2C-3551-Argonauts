@@ -96,7 +96,7 @@ namespace TGC.MonoGame.TP
             EnemyShips = new EnemyShip[CountEnemyShip];
             for (int eShip = 0; eShip < CountEnemyShip; eShip++)
             {
-                EnemyShips[eShip] = new EnemyShip(new Vector3(400f, 10f, eShip * 1300 -1300*CountEnemyShip/2), new Vector3(0,0,0),10,this);
+                EnemyShips[eShip] = new EnemyShip(new Vector3(600f * (Math.Abs(eShip/2)*2-1), 10f, eShip * 1300 -1300*CountEnemyShip/2), new Vector3(0,0,0),10,this);
             }
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip, GameState == "START");
             gameRun = new GameRun(this);

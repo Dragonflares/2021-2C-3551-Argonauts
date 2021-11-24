@@ -20,8 +20,9 @@ namespace TGC.MonoGame.TP.Objects.Water
             Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "terrain");
             var terrainTexture = Game.Content.Load<Texture2D>("Textures/" + "Ocean2");
             Effect.Parameters["texColorMap"].SetValue(terrainTexture);
-            Effect.Parameters["texDiffuseMap"].SetValue(terrainTexture);
-            Effect.Parameters["texDiffuseMap2"].SetValue(terrainTexture);
+            
+            //Effect.Parameters["texDiffuseMap"].SetValue(terrainTexture);
+            //Effect.Parameters["texDiffuseMap2"].SetValue(terrainTexture);
             LoadHeightmap(Effect.GraphicsDevice, 100, 4, Vector3.Zero, 0);
         }
 
@@ -167,7 +168,7 @@ namespace TGC.MonoGame.TP.Objects.Water
                 var pixel = rawData[j * width + i];
                 var intensity = pixel.R * 0.2f + pixel.G * 0.1f + pixel.B * 0.1f;
                 intensity = (float) Math.Sin( time  + j)*2;
-                intensity += (float) Math.Sin((time * 0.5 + j*10)*0.01) * 50;
+                intensity += (float) Math.Sin(time*0.3  + j*0.1) * 40;
                 heightmap[i, j] = (float) intensity;
             }
 

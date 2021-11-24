@@ -11,32 +11,18 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
-float alphaValue = 1;
-float3 lightPosition = float3(1000, 1000, 1000);
-float time = 0;
+float KAmbient;
+float3 ambientColor;
 
-//Textura para DiffuseMap
-texture texDiffuseMap;
-sampler2D diffuseMap = sampler_state
-{
-    Texture = (texDiffuseMap);
-    ADDRESSU = WRAP;
-    ADDRESSV = WRAP;
-    MINFILTER = LINEAR;
-    MAGFILTER = LINEAR;
-    MIPFILTER = LINEAR;
-};
+float KDiffuse;
+float3 diffuseColor;
 
-texture texDiffuseMap2;
-sampler2D diffuseMap2 = sampler_state
-{
-    Texture = (texDiffuseMap2);
-    ADDRESSU = MIRROR;
-    ADDRESSV = MIRROR;
-    MINFILTER = LINEAR;
-    MAGFILTER = LINEAR;
-    MIPFILTER = LINEAR;
-};
+float KSpecular;
+float3 specularColor;
+float shininess;
+
+float KReflection;
+float KFoam;
 
 texture texColorMap;
 sampler2D colorMap = sampler_state
@@ -59,50 +45,78 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 Position : POSITION0;
-    float2 Texcoord : TEXCOORD0;
-    float3 WorldPos : TEXCOORD1;
-    float3 WorldNormal : TEXCOORD2;
+    float2 TextureCoordinates : TEXCOORD0;
+    float4 WorldPosition : TEXCOORD1;
+    float4 Normal : TEXCOORD2;
 };
 
 VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
 {
     VS_OUTPUT output;
-
-    //Proyectar posicion
     float4 worldPosition = mul(input.Position, World);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
-
-    //Enviar Texcoord directamente
+    output.WorldPosition = worldPosition;
+    output.Normal = input.Normal;
     output.Texcoord = input.Texcoord;
-
-    //todo: que le pase el inv trasp. word
-    float4x4 matInverseTransposeWorld = World;
-    output.WorldPos = worldPosition.xyz;
-    output.WorldNormal = mul(input.Normal, matInverseTransposeWorld).xyz;
-
     return output;
 }
 
-struct PS_INPUT
-{
-    float2 Texcoord : TEXCOORD0;
-    float3 WorldPos : TEXCOORD1;
-    float3 WorldNormal : TEXCOORD2;
-};
 
-//Pixel Shader
-float4 ps_RenderTerrain(PS_INPUT input) : COLOR0
+float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
 {
-    float3 N = normalize(input.WorldNormal);
-    float3 L = normalize(lightPosition - input.WorldPos);
-    float kd = saturate(0.4 + 0.7 * saturate(dot(N, L)));
-
-    float3 c = tex2D(colorMap, input.Texcoord).rgb;
-    float3 tex1 = tex2D(diffuseMap, input.Texcoord * 31).rgb;
-    float3 tex2 = tex2D(diffuseMap2, input.Texcoord * 27).rgb;
-    float3 clr = lerp(lerp(tex1, tex2, c.r), c, 0.3);
-    return float4(clr * kd, 1);
+    float alturaY = clamp(sunPosition.y / 1500, 0.5, 1);
+    
+        float3 normal = getNormalFromMap(input.TextureCoordinates, input.WorldPosition.xyz, input.Normal.xyz);
+    
+        //float3 worldNormal = input.Normal.xyz * normal;
+        float3 worldNormal = input.Normal.xyz + normal;
+        float3 reflNormal = input.Normal.xyz * normal;
+    
+    
+        // Base vectors
+        float3 lightDirection = normalize(sunPosition - input.WorldPosition.xyz);
+        float3 viewDirection = normalize(cameraPosition - input.WorldPosition.xyz);
+        float3 halfVector = normalize(lightDirection + viewDirection);
+    
+        // Get the texture texel textureSampler is the sampler, Texcoord is the interpolated coordinates
+        float4 texelColor = tex2D(textureSampler, input.TextureCoordinates);
+        float4 foamColor = tex2D(foamSampler, input.TextureCoordinates);
+    
+        // Get the texel from the texture
+        float3 reflColor = tex2D(textureSampler, input.TextureCoordinates).rgb;
+    
+        // Not part of the mapping, just adjusting color
+        reflColor = lerp(reflColor, float3(1, 1, 1), step(length(reflColor), 0.01));
+    
+        float3 view = normalize(cameraPosition.xyz - input.WorldPosition.xyz);
+        float3 reflection = reflect(view, reflNormal);
+        float3 reflectionColor = texCUBE(environmentMapSampler, reflection).rgb;
+    
+        float3 ambientLight = KAmbient * ambientColor + KFoam * foamColor.rgb;
+    
+        // Calculate the diffuse light
+        float NdotL = saturate(dot(worldNormal, lightDirection));
+        float3 diffuseLight = KDiffuse * diffuseColor * NdotL;
+    
+        float3 baseColor = saturate(ambientLight + diffuseLight);
+    
+        float crestaBase = saturate(input.WorldPosition.y * 0.008) + 0.22;
+        baseColor += saturate(float3(1, 1, 1) * float3(crestaBase, crestaBase, crestaBase));
+    
+        if (input.WorldPosition.y * 0.1 > -1) {
+            float n = input.WorldPosition.y * 0.5 * noise(input.WorldPosition.x * 0.01) * noise(input.WorldPosition.z * 0.01) * texelColor.r;
+            baseColor += float3(.1, .1, .1) * float3(n * saturate(foamColor.r * 2), n * saturate(foamColor.r * 2), n * saturate(foamColor.r * 2));
+        }
+    
+        float3 specColor = specularColor * texelColor.r;
+        float NdotH = dot(worldNormal, halfVector);
+        float3 specularLight = sign(NdotL) * KSpecular * specColor * pow(saturate(NdotH), shininess);
+        float4 finalColor = float4(lerp(baseColor, reflectionColor * KReflection, 0.5) + specularLight, 1) * alturaY;
+    
+        //return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
+        return float4(baseColor,1);
+    //return tex2D(colorMap, normalize(input.Texcoord.xy));
 }
 
 technique RenderTerrain
