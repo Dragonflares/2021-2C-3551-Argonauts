@@ -19,7 +19,19 @@ namespace TGC.MonoGame.TP.Objects.Water
         {
             Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "terrain");
             var terrainTexture = Game.Content.Load<Texture2D>("Textures/" + "Ocean2");
-            Effect.Parameters["texColorMap"].SetValue(terrainTexture);
+            Effect.Parameters["normalTexture"]?.SetValue(terrainTexture);
+            Effect.Parameters["baseTexture"]?.SetValue(terrainTexture);
+            Effect.Parameters["foamTexture"]?.SetValue(terrainTexture);
+            Effect.Parameters["KAmbient"]?.SetValue(0.5f);
+            Effect.Parameters["ambientColor"]?.SetValue(new Vector3(0,0,0.3f));
+            Effect.Parameters["KDiffuse"]?.SetValue(0.3f);
+            Effect.Parameters["diffuseColor"]?.SetValue(new Vector3(0,0,0.5f));
+            Effect.Parameters["KSpecular"]?.SetValue(0.2f);
+            Effect.Parameters["specularColor"]?.SetValue(new Vector3(0,0,1));
+            Effect.Parameters["shininess"]?.SetValue(0f);
+            Effect.Parameters["KReflection"]?.SetValue(0f);
+            Effect.Parameters["cameraPosition"]?.SetValue(Game.Camera.Position);
+            Effect.Parameters["sunPosition"]?.SetValue(Game.SunPosition);
             
             //Effect.Parameters["texDiffuseMap"].SetValue(terrainTexture);
             //Effect.Parameters["texDiffuseMap2"].SetValue(terrainTexture);
@@ -44,10 +56,10 @@ namespace TGC.MonoGame.TP.Objects.Water
             LoadHeightmap(Effect.GraphicsDevice, 100, 4, Vector3.Zero, time);
             var graphicsDevice = Effect.GraphicsDevice;
 
-            Effect.Parameters["World"].SetValue(World);
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-
+            Effect.Parameters["World"]?.SetValue(World);
+            Effect.Parameters["View"]?.SetValue(View);
+            Effect.Parameters["Projection"]?.SetValue(Projection);
+            Effect.Parameters["Time"]?.SetValue(time);
             graphicsDevice.SetVertexBuffer(vbTerrain);
 
             //Render con shader

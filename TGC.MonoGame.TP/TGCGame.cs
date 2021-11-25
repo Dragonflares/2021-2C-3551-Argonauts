@@ -71,6 +71,7 @@ namespace TGC.MonoGame.TP
         public Effect basicEffect;
         public Texture2D islasTexture;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
+        public Vector3 SunPosition = new Vector3(-200f, 15000, 100);
 
 
         /// <summary>
