@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -38,22 +39,35 @@ namespace TGC.MonoGame.TP.Objects
             IslasBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
             // Move the center
             IslasBox.Center = Position;
+            foreach (var modelMesh in modelo.Meshes)
+            foreach (var meshPart in modelMesh.MeshParts)
+                meshPart.Effect = effect;
         }
 
         public void Draw()
         {
             var World =  Matrix.CreateRotationX(-(float)Math.PI/2)*Matrix.CreateScale(50f) *
                          Matrix.CreateTranslation(Position);
+            effect.Parameters["ambientColor"]?.SetValue(_game.KAColor);
+            effect.Parameters["diffuseColor"]?.SetValue(_game.KDColor);
+            effect.Parameters["specularColor"]?.SetValue(_game.KSColor);
+            effect.Parameters["KAmbient"]?.SetValue(0.1f);
+            effect.Parameters["KDiffuse"]?.SetValue(1f);
+            effect.Parameters["KSpecular"]?.SetValue(1f);
+            effect.Parameters["shininess"]?.SetValue(0.6f);
+            effect.Parameters["baseTexture"]?.SetValue(_game.islasTexture);
+            effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
+            effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
             foreach (var mesh in modelo.Meshes)
             {
-                foreach (var part in mesh.MeshParts)
-                {
-                    part.Effect = effect;
-                    effect.Parameters["World"].SetValue(World);
-                    effect.Parameters["View"].SetValue(_game.Camera.View);
-                    effect.Parameters["Projection"].SetValue(_game.Camera.Projection);
-                    effect.Parameters["ModelTexture"].SetValue(_game.islasTexture);
-                }
+                // World is used to transform from model space to world space
+                effect.Parameters["World"].SetValue(World);
+                // InverseTransposeWorld is used to rotate normals
+                effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
+                // WorldViewProjection is used to transform from model space to clip space
+                effect.Parameters["WorldViewProjection"].SetValue(World *_game.Camera.View * _game.Camera.Projection);
+
+                // Once we set these matrices we draw
                 mesh.Draw();
             }
         }

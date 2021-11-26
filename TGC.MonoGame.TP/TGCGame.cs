@@ -74,7 +74,8 @@ namespace TGC.MonoGame.TP
         public Vector3 SunPosition = new Vector3(-200f, 15000, 100);
 
         public Vector3 KAColor = new Vector3(0, 0, 0.4f);
-        public Vector3 KDColor = new Vector3(0, 0, 0.2f);
+        //public Vector3 KDColor = new Vector3(0, 0, 0.2f);
+        public Vector3 KDColor = new Vector3(1, 1, 1);
         public Vector3 KSColor = new Vector3(1, 1, 1);
         
         //public Vector3 SunPosition = new Vector3(0f, 0, 1000000);
@@ -149,7 +150,7 @@ namespace TGC.MonoGame.TP
             Islas = new islas[cantIslas];
             for (int isla = 0; isla < cantIslas; isla++)
             {
-                Islas[isla] = new islas(posicionesIslas[isla],this,"islands/isla" + (isla + 1),"BasicShader");
+                Islas[isla] = new islas(posicionesIslas[isla],this,"islands/isla" + (isla + 1),"Ship");
                 Islas[isla].LoadContent();
             }
 

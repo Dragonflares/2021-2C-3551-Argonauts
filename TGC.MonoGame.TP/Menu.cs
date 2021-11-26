@@ -34,12 +34,14 @@ namespace TGC.MonoGame.TP
 
         private float Shininess = 7;
         private Effect Effect;
+        private Texture2D TextureShip;
         public Menu(TGCGame game)
         {
             Game = game;
             Barco = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "Barco");
             botonesOff = Game.Content.Load<Texture2D>("Textures/" + "ButtonOff");
             botonesOn = Game.Content.Load<Texture2D>("Textures/" + "ButtonOn");
+            TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "BarcoPrincipal2");
             botonesCurrentPlay = botonesOff;
             botonesCurrentExit = botonesOff;
             font = Game.Content.Load<SpriteFont>("SpriteFonts/Text");
@@ -58,6 +60,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["ambientColor"]?.SetValue(Game.KAColor);
             Effect.Parameters["diffuseColor"]?.SetValue(Game.KDColor);
             Effect.Parameters["specularColor"]?.SetValue(Game.KSColor);
+            Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
             Effect.Parameters["KAmbient"]?.SetValue(0.1f);
             Effect.Parameters["KDiffuse"]?.SetValue(0.7f);
             Effect.Parameters["KSpecular"]?.SetValue(0.2f);

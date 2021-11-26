@@ -596,6 +596,30 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Barco3.bmp
 
+#begin Textures/BarcoPrincipal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/BarcoPrincipal.png
+
+#begin Textures/BarcoPrincipal2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/BarcoPrincipal2.png
+
 #begin Textures/barra de vida 2.png
 /importer:TextureImporter
 /processor:TextureProcessor

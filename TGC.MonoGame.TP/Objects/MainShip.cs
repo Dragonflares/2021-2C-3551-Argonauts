@@ -50,6 +50,7 @@ namespace TGC.MonoGame.TP.Objects
         private float KD = 1f;
 
         private float KS = 0.5f;
+        private Texture2D TextureShip;
 
         private float Shininess = 7;
         //private Vector3 PositionAnterior;
@@ -81,6 +82,7 @@ namespace TGC.MonoGame.TP.Objects
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
             Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
+            TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "BarcoPrincipal2");
             foreach (var modelMesh in modelo.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
@@ -108,8 +110,9 @@ namespace TGC.MonoGame.TP.Objects
             modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
             Effect.Parameters["KAmbient"]?.SetValue(0.1f);
             Effect.Parameters["KDiffuse"]?.SetValue(0.7f);
-            Effect.Parameters["KSpecular"]?.SetValue(0.2f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.1f);
             Effect.Parameters["shininess"]?.SetValue(100f);
+            Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
             foreach (var modelMesh in modelo.Meshes)
             {
                 // We set the main matrices for each mesh to draw
