@@ -39,10 +39,19 @@ namespace TGC.MonoGame.TP.Objects
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
         private int Life = 100;
+        private Effect Effect;
         private SpriteFont SpriteFont;
         public OrientedBoundingBox ShipBox { get; set; }
         private bool AreAABBsTouching { get; set; }
         private float initialScale;
+
+        private float KA = 0.3f;
+
+        private float KD = 1f;
+
+        private float KS = 0.5f;
+
+        private float Shininess = 7;
         //private Vector3 PositionAnterior;
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
@@ -71,16 +80,19 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
-            //RobotTwoBox = new BoundingBox(RobotOneBox.Min + RobotTwoPosition, RobotOneBox.Max + RobotTwoPosition);
+            Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
+            foreach (var modelMesh in modelo.Meshes)
+            foreach (var meshPart in modelMesh.MeshParts)
+                meshPart.Effect = Effect;
+            Effect.Parameters["ambientColor"]?.SetValue(_game.KAColor);
+            Effect.Parameters["diffuseColor"]?.SetValue(_game.KDColor);
+            Effect.Parameters["specularColor"]?.SetValue(_game.KSColor);
+            
             
             var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
-            // Scale it to match the model's transform
             temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
-            // Create an Oriented Bounding Box from the AABB
             ShipBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
-            // Move the center
             ShipBox.Center = Position;
-            // Then set its orientation!
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
         }
@@ -91,7 +103,27 @@ namespace TGC.MonoGame.TP.Objects
             var matWorld = Matrix.CreateRotationY(anguloInicial)*Matrix.CreateScale(initialScale)*
                            CalcularMatrizOrientacion( Position)
                            *Matrix.CreateTranslation(Position);
-            modelo.Draw(matWorld, _game.Camera.View, _game.Camera.Projection);
+            
+            var modelMeshesBaseTransforms = new Matrix[modelo.Bones.Count];
+            modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
+            Effect.Parameters["KDiffuse"]?.SetValue(0.7f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.2f);
+            Effect.Parameters["shininess"]?.SetValue(100f);
+            foreach (var modelMesh in modelo.Meshes)
+            {
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
+                // World is used to transform from model space to world space
+                Effect.Parameters["World"].SetValue(worldMatrix);
+                // InverseTransposeWorld is used to rotate normals
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                // WorldViewProjection is used to transform from model space to clip space
+                Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix *_game.Camera.View * _game.Camera.Projection);
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
         }
         public Matrix CalcularMatrizOrientacion(Vector3 p0)
         {
@@ -166,7 +198,8 @@ namespace TGC.MonoGame.TP.Objects
             {
                 cannon.Update(gameTime);
             }
-
+            Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
+            Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
             ProcessKeyboard(_game.ElapsedTime);
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);

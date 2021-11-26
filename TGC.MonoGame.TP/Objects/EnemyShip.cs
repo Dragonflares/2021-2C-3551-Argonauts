@@ -41,8 +41,12 @@ namespace TGC.MonoGame.TP.Objects
         public int Life = 50;
         private SpriteFont SpriteFont;
         private float initialScale;
+        private float Kspecular;
         public OrientedBoundingBox ShipBox { get; set; }
         private bool Active;
+        private Effect Effect;
+        private String ModelTexture;
+        private Texture2D texture;
         public EnemyShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
             var rnd = new Random();
@@ -53,13 +57,18 @@ namespace TGC.MonoGame.TP.Objects
                 ModelName = "Barco2/Barco2";
                 initialScale = 1 ;
                 anguloInicial = 0;
+                ModelTexture = "Barco2";
+                Kspecular = 1f;
+
             }
             else
             {   //Barco rojo
                 ModelName = "Barco3";
                 initialScale = 1 ;
                 anguloInicial = 0;
-                
+                ModelTexture = "Barco2";
+                Kspecular = 0.1f;
+
             }
             speed = 0;
             Position = initialPosition;
@@ -84,6 +93,7 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
+            texture = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + ModelTexture);
             
             var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
             temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
@@ -94,9 +104,16 @@ namespace TGC.MonoGame.TP.Objects
             // Then set its orientation!
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
-            /*
-            ShipBox = BoundingVolumesExtensions.CreateAABBFrom(modelo);
-            ShipBox = new BoundingBox((ShipBox.Min + Position)*initialScale, (ShipBox.Max + Position)*initialScale);*/
+            Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
+            foreach (var modelMesh in modelo.Meshes)
+            foreach (var meshPart in modelMesh.MeshParts)
+                meshPart.Effect = Effect;
+
+            Effect.Parameters["ambientColor"]?.SetValue(_game.KAColor);
+            Effect.Parameters["diffuseColor"]?.SetValue(_game.KDColor);
+            Effect.Parameters["specularColor"]?.SetValue(_game.KSColor);
+            
+            
         }
         private void DrawShip()
         {
@@ -105,7 +122,28 @@ namespace TGC.MonoGame.TP.Objects
             var matWorld = Matrix.CreateRotationY(anguloInicial)*Matrix.CreateScale(initialScale)*
                            CalcularMatrizOrientacion( Position)
                            *Matrix.CreateTranslation(Position);
-            modelo.Draw(matWorld, _game.Camera.View, _game.Camera.Projection);
+            
+            var modelMeshesBaseTransforms = new Matrix[modelo.Bones.Count];
+            modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            Effect.Parameters["baseTexture"]?.SetValue(texture);
+            Effect.Parameters["KAmbient"]?.SetValue(1f);
+            Effect.Parameters["KDiffuse"]?.SetValue(1f);
+            Effect.Parameters["KSpecular"]?.SetValue(Kspecular);
+            Effect.Parameters["shininess"]?.SetValue(0.5f);
+            foreach (var modelMesh in modelo.Meshes)
+            {
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
+                // World is used to transform from model space to world space
+                Effect.Parameters["World"].SetValue(worldMatrix);
+                // InverseTransposeWorld is used to rotate normals
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                // WorldViewProjection is used to transform from model space to clip space
+                Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix *_game.Camera.View * _game.Camera.Projection);
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
         }
         public Matrix CalcularMatrizOrientacion(Vector3 p0)
         {
@@ -172,6 +210,8 @@ namespace TGC.MonoGame.TP.Objects
         public void Update(GameTime gameTime)
         {
             Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
+            Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
+            Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
             ShipBox.Center = Position;
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
             /*

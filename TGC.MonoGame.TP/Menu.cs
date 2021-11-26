@@ -26,11 +26,18 @@ namespace TGC.MonoGame.TP
 
         public Song Song { get; set; }
         private SoundEffect soundButtom { get; set; }
+        private float KA = 0.3f;
+
+        private float KD = 1f;
+
+        private float KS = 0.5f;
+
+        private float Shininess = 7;
+        private Effect Effect;
         public Menu(TGCGame game)
         {
             Game = game;
             Barco = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "Barco");
-            BarcoEffect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "BasicShader");
             botonesOff = Game.Content.Load<Texture2D>("Textures/" + "ButtonOff");
             botonesOn = Game.Content.Load<Texture2D>("Textures/" + "ButtonOn");
             botonesCurrentPlay = botonesOff;
@@ -44,7 +51,17 @@ namespace TGC.MonoGame.TP
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
                     8000f);
-            
+            Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
+            foreach (var modelMesh in Barco.Meshes)
+            foreach (var meshPart in modelMesh.MeshParts)
+                meshPart.Effect = Effect;
+            Effect.Parameters["ambientColor"]?.SetValue(Game.KAColor);
+            Effect.Parameters["diffuseColor"]?.SetValue(Game.KDColor);
+            Effect.Parameters["specularColor"]?.SetValue(Game.KSColor);
+            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
+            Effect.Parameters["KDiffuse"]?.SetValue(0.7f);
+            Effect.Parameters["KSpecular"]?.SetValue(0.2f);
+            Effect.Parameters["shininess"]?.SetValue(100f);
         }
 
         private void DrawShip(Model model, float angle)
@@ -59,8 +76,22 @@ namespace TGC.MonoGame.TP
             
             var matWorld = CalcularMatrizOrientacion(0.4f, new Vector3(pos.X, Game.terrain.Height(pos.X, pos.Y) +10, pos.Y), PosAdelante,
                 PosDerecha);
+            var modelMeshesBaseTransforms = new Matrix[Barco.Bones.Count];
+            Barco.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            foreach (var modelMesh in Barco.Meshes)
+            {
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
+                // World is used to transform from model space to world space
+                Effect.Parameters["World"].SetValue(worldMatrix);
+                // InverseTransposeWorld is used to rotate normals
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                // WorldViewProjection is used to transform from model space to clip space
+                Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix *Game.Camera.View * Game.Camera.Projection);
 
-            model.Draw(matWorld, Game.Camera.View, Game.Camera.Projection);
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
         }
 
         public void Draw(GameTime gameTime)
@@ -93,6 +124,8 @@ namespace TGC.MonoGame.TP
 
         public void Update(GameTime gameTime)
         {
+            Effect.Parameters["lightPosition"]?.SetValue(Game.SunPosition);
+            Effect.Parameters["eyePosition"]?.SetValue(Game.Camera.Position);
             var position = Mouse.GetState().Position;
             if (position.X > 800 && position.X < 1000 && position.Y > 50 && position.Y < 150)
             {

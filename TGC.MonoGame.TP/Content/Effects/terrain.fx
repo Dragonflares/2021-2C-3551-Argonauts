@@ -178,7 +178,7 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
     
      float3 baseColor = saturate(ambientLight + diffuseLight);
      
-     float crestaBase = saturate(input.WorldPosition.y * 0.008) + 0.22;
+     float crestaBase = saturate(input.WorldPosition.y * 0.008) +0.22;
      baseColor += saturate(float3(1, 1, 1) * float3(crestaBase, crestaBase, crestaBase));
     /*
      if (input.WorldPosition.y * 0.1 > -1) {

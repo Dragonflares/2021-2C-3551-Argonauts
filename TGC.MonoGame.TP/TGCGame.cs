@@ -73,6 +73,12 @@ namespace TGC.MonoGame.TP
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
         public Vector3 SunPosition = new Vector3(-200f, 15000, 100);
 
+        public Vector3 KAColor = new Vector3(0, 0, 0.4f);
+        public Vector3 KDColor = new Vector3(0, 0, 0.2f);
+        public Vector3 KSColor = new Vector3(1, 1, 1);
+        
+        //public Vector3 SunPosition = new Vector3(0f, 0, 1000000);
+
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
