@@ -62,7 +62,7 @@ namespace TGC.MonoGame.Samples.Cameras
         /// <summary>
         ///     Position where the camera is located.
         /// </summary>
-        public Vector3 Position { get; set; }
+        public Vector3 Position;
 
         /// <summary>
         ///     Represents the positive x-axis of the camera space.

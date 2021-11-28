@@ -141,7 +141,8 @@ namespace TGC.MonoGame.Samples.Cameras
 
         public override void SetPosition(Vector3 position)
         {
-            Position = position;
+            Position.X = position.X;
+            Position.Z = position.Z;
         }
     }
 }
