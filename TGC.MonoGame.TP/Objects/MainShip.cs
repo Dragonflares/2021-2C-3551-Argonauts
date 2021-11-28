@@ -37,7 +37,7 @@ namespace TGC.MonoGame.TP.Objects
         private List <CannonBall> cannonBalls= new List <CannonBall>();
 
         private SoundEffect soundShot { get; set; }
-        private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
+        private Vector3 StartPositionCannon = new Vector3(0, 250, 80);
         private int Life = 100;
         private Effect Effect;
         private SpriteFont SpriteFont;
@@ -197,6 +197,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Update(GameTime gameTime)
         {
+            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
             foreach (var cannon in cannonBalls)
             {
                 cannon.Update(gameTime);
@@ -207,7 +208,6 @@ namespace TGC.MonoGame.TP.Objects
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
-            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
             ShipBox.Center = Position;
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)

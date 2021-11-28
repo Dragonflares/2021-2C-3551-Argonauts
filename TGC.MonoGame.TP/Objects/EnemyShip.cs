@@ -65,7 +65,7 @@ namespace TGC.MonoGame.TP.Objects
             {   //Barco rojo
                 ModelName = "Barco3";
                 initialScale = 1 ;
-                anguloInicial = 0;
+                anguloInicial = (float)Math.PI/2;;
                 ModelTexture = "Barco2";
                 Kspecular = 0.1f;
 
@@ -212,8 +212,66 @@ namespace TGC.MonoGame.TP.Objects
             Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
             Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
             Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
+            var shipsDistanceMin = 10000000000000f;
+            var positionEnd = Position;
+            if ((_game.MainShip.Position - Position).Length() < shipsDistanceMin)
+            {
+                shipsDistanceMin = (_game.MainShip.Position - Position).Length();
+                positionEnd = _game.MainShip.Position;
+            }
+            foreach (var ship in  _game.EnemyShips)
+            {
+                if (ship!= this &&
+                    (ship.Position - Position).Length() < shipsDistanceMin)
+                {
+                    shipsDistanceMin = (ship.Position - Position).Length();
+                    positionEnd = ship.Position;
+                }
+            }
+
+            if (shipsDistanceMin > 300)
+            {
+                MoveTo(positionEnd);
+            }
+            else
+            {
+                speed = 0;
+                currentGear = 0;
+            }
+            UpdateMovementSpeed(gameTime);
+            Move();
             ShipBox.Center = Position;
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
+            for (int ship = 0; ship < _game.CountEnemyShip; ship++)
+                if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
+                {
+                    ShipBox.Center = PositionAnterior;
+                    Position = PositionAnterior;
+                    currentGear = 0;
+                    HandBrake = false;
+                    pressedReverse = false;
+                    pressedAccelerator = false;
+                    speed = 0;
+                    break;
+                }
+            for (int isla = 0; isla < _game.cantIslas; isla++)
+                if (ShipBox.Intersects(_game.Islas[isla].IslasBox))
+                {
+                    ShipBox.Center = PositionAnterior;
+                    Position = PositionAnterior;
+                    currentGear = 0;
+                    HandBrake = false;
+                    pressedReverse = false;
+                    pressedAccelerator = false;
+                    speed = 0;
+                    break;
+                }
+
+            Position.X = Math.Min(Position.X,_game.LimitSpaceGame.X);
+            Position.Z = Math.Min(Position.Z,_game.LimitSpaceGame.Y);
+            Position.X = Math.Max(Position.X,-_game.LimitSpaceGame.X);
+            Position.Z = Math.Max(Position.Z,-_game.LimitSpaceGame.Y);
+            PositionAnterior = Position;
             /*
             foreach (var cannon in cannonBalls)
             {
@@ -225,6 +283,39 @@ namespace TGC.MonoGame.TP.Objects
             Move();*/
         }
 
+        private void MoveTo(Vector3 position)
+        {
+            var Vectordestino = new Vector2(position.X-Position.X, position.Z-Position.Z);
+            var angulodestino = Math.Atan(  Vectordestino.Y/Vectordestino.X);
+            if (angulodestino > Math.PI / 2)
+            {
+                pressedReverse = true;
+                angulodestino = angulodestino - Math.PI ;
+            }
+            else
+            {
+                if (angulodestino < -Math.PI / 2)
+                {
+                    pressedReverse = true;
+                    angulodestino = Math.PI - angulodestino;
+                }
+            }
+            if (speed != 0)
+            {
+                anguloDeGiro += (float)Math.Min(0.003f, angulodestino - anguloDeGiro);
+            }
+
+            if (pressedReverse)
+            {
+                currentGear = Math.Min(currentGear - 1, -2);
+            }
+            else
+            {
+                currentGear = Math.Max(currentGear + 1, 3);
+            }
+        }
+        
+        
         public void Move()
         {
             var newOrientacion = new Vector3((float) Math.Sin(anguloDeGiro), 0, (float) Math.Cos(anguloDeGiro));
@@ -308,76 +399,6 @@ namespace TGC.MonoGame.TP.Objects
             if (!mouseState.RightButton.Equals(ButtonState.Pressed))
             {
                 CanShoot = true;
-            }
-        }
-
-        private void ProcessKeyboard(float elapsedTime)
-        {
-            var keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                if (speed == 0)
-                {
-                }
-                else
-                {
-                    if (anguloDeGiro + giroBase >= MathF.PI * 2)
-                    {
-                        anguloDeGiro += giroBase - MathF.PI * 2;
-                    }
-                    else
-                    {
-                        anguloDeGiro -= giroBase;
-                    }
-                }
-            }
-
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                if (speed == 0)
-                {
-                }
-                else
-                {
-                    if (anguloDeGiro + giroBase < 0)
-                    {
-                        anguloDeGiro += -giroBase + MathF.PI * 2;
-                    }
-                    else
-                    {
-                        anguloDeGiro += giroBase;
-                    }
-                }
-            }
-
-            if (this.pressedAccelerator == false && keyboardState.IsKeyDown(Keys.W) && currentGear < 3)
-            {
-                currentGear++;
-                pressedAccelerator = true;
-                if (HandBrake) HandBrake = false;
-            }
-
-            if (this.pressedAccelerator == true && keyboardState.IsKeyUp(Keys.W))
-            {
-                pressedAccelerator = false;
-            }
-
-            if (this.pressedReverse == false && keyboardState.IsKeyDown(Keys.S) && currentGear > -2)
-            {
-                currentGear--;
-                pressedReverse = true;
-                if (HandBrake) HandBrake = false;
-            }
-
-            if (this.pressedReverse == true && keyboardState.IsKeyUp(Keys.S))
-            {
-                pressedReverse = false;
-            }
-
-            if (HandBrake == false && keyboardState.IsKeyDown(Keys.Space))
-            {
-                HandBrake = true;
-                currentGear = 0;
             }
         }
     }
