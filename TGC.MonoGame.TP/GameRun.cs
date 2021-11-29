@@ -91,12 +91,22 @@ namespace TGC.MonoGame.TP
 
         public void Update(GameTime gameTime)
         {
+            List<EnemyShip> removeShips = new List<EnemyShip>();
             for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
             {
                 if (Game.EnemyShips[eShip].Life > 0)
                 {
                     Game.EnemyShips[eShip].Update(gameTime);
                 }
+                else
+                {
+                    removeShips.Add(Game.EnemyShips[eShip]);
+                }
+            }
+            foreach (var ship in removeShips)
+            {
+                Game.EnemyShips.Remove(ship);
+                Game.CountEnemyShip--;
             }
             Game.MainShip.Update(gameTime);
             Game.Camera.SetPosition(Game.MainShip.Position);

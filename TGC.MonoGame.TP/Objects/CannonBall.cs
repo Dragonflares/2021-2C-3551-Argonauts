@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP.Objects
         private float cont = 0f;
         private double DurationTotal = 0 ;
         private float Angulo = 0f;
-        private bool Active = true;
+        public bool Active = true;
         public OrientedBoundingBox CannonBallBox { get; set; }
         private MainShip origenMain;
         private EnemyShip origenEnemy;
@@ -33,7 +33,8 @@ namespace TGC.MonoGame.TP.Objects
             Position0 = initialPosition;
             //Position0 = new Vector3(-200f, 32, 80);
             Rotate0 = -(float) Math.PI / 2;
-            Scale0 = (float)0.005;
+            //Scale0 = (float)0.005;
+            Scale0 = (float)0.5;
             //Position1 = new Vector3(-200f, 10, 1000);
             Position1 = endPosition;
             PositionActual = Position0;
@@ -64,7 +65,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Update(GameTime gameTime)
         {
-            DurationTotal += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds)*(float)0.1;
+            DurationTotal += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             if (PositionActual != Position1)
             {
                 PositionActual = Position0 + Velocidad * (float) DurationTotal +
@@ -74,15 +75,21 @@ namespace TGC.MonoGame.TP.Objects
             var x = (PositionAnterior - new Vector3(PositionActual.X, PositionAnterior.Y, PositionActual.Z)).Length();
             Angulo =(float) Math.Atan(y / x);
             PositionAnterior = PositionActual;
+            // Move the center
+            CannonBallBox.Center = PositionActual;
+            // Then set its orientation!
+            CannonBallBox.Orientation = Matrix.CreateRotationY(Rotate0);
             for (int ship = 0; ship < Game.CountEnemyShip; ship++)
                 if (CannonBallBox.Intersects(Game.EnemyShips[ship].ShipBox) && Game.EnemyShips[ship] != origenEnemy)
                 {
+                    Active = false;
                     Game.EnemyShips[ship].Shoted();
                 }
 
             if (CannonBallBox.Intersects(Game.MainShip.ShipBox) && Game.MainShip != origenMain)
             {
                 Game.MainShip.Shoted();
+                Active = false;
             }
         }
 

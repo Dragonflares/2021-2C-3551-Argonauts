@@ -97,7 +97,7 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime,String text)
         {
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
             var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
@@ -114,7 +114,7 @@ namespace TGC.MonoGame.TP
             spriteBatch.Draw(botonesCurrentPlay,
                 new Rectangle(250, 50,
                     200, 100), Color.White);
-            spriteBatch.DrawString(font, "Play", new Vector2(285, 60), Color.White);
+            spriteBatch.DrawString(font, text, new Vector2(285, 60), Color.White);
             spriteBatch.Draw(botonesCurrentExit,
                 new Rectangle(800, 50,
                     200, 100), Color.White);

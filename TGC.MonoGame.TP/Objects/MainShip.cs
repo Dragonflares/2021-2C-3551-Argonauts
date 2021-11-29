@@ -34,11 +34,11 @@ namespace TGC.MonoGame.TP.Objects
         private Boolean CanShoot { get; set; }
         
         private Model cannonBall { get; set; }
-        private List <CannonBall> cannonBalls= new List <CannonBall>();
+        public List <CannonBall> cannonBalls= new List <CannonBall>();
 
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 250, 80);
-        private int Life = 100;
+        public int Life = 100;
         private Effect Effect;
         private SpriteFont SpriteFont;
         public OrientedBoundingBox ShipBox { get; set; }
@@ -198,9 +198,20 @@ namespace TGC.MonoGame.TP.Objects
         public void Update(GameTime gameTime)
         {
             Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
+            List<CannonBall> removeCannonBalls = new List<CannonBall>();
             foreach (var cannon in cannonBalls)
             {
-                cannon.Update(gameTime);
+                if (cannon.Active)
+                    cannon.Update(gameTime);
+                else
+                {
+                    removeCannonBalls.Add(cannon);
+                }
+            }
+
+            foreach (var cannon in removeCannonBalls)
+            {
+                cannonBalls.Remove(cannon);
             }
             Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
             Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
@@ -234,6 +245,10 @@ namespace TGC.MonoGame.TP.Objects
                     speed = 0;
                     break;
                 }
+            Position.X = Math.Min(Position.X,_game.LimitSpaceGame.X);
+            Position.Z = Math.Min(Position.Z,_game.LimitSpaceGame.Y);
+            Position.X = Math.Max(Position.X,-_game.LimitSpaceGame.X);
+            Position.Z = Math.Max(Position.Z,-_game.LimitSpaceGame.Y);
             PositionAnterior = Position;
         }
 
@@ -388,7 +403,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Shoted()
         {
-            Life--;
+            Life-=10;
         }
     }
 }

@@ -31,6 +31,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public string ModelName;
         public string SoundShotName;
+        private float CannonBallTime=0;
         private Boolean CanShoot { get; set; }
 
         private Model cannonBall { get; set; }
@@ -199,13 +200,16 @@ namespace TGC.MonoGame.TP.Objects
             DrawShip();
             foreach (var cannon in cannonBalls)
             {
-                cannon.Draw();
+                if (cannon.Active)
+                {
+                    cannon.Draw();
+                }
             }
         }
 
         public void Shoted()
         {
-            Life--;
+            Life-=10;
         }
         public void Update(GameTime gameTime)
         {
@@ -243,7 +247,7 @@ namespace TGC.MonoGame.TP.Objects
             ShipBox.Center = Position;
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)
-                if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
+                if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox)&& ShipBox !=_game.EnemyShips[ship].ShipBox)
                 {
                     ShipBox.Center = PositionAnterior;
                     Position = PositionAnterior;
@@ -272,11 +276,39 @@ namespace TGC.MonoGame.TP.Objects
             Position.X = Math.Max(Position.X,-_game.LimitSpaceGame.X);
             Position.Z = Math.Max(Position.Z,-_game.LimitSpaceGame.Y);
             PositionAnterior = Position;
-            /*
+            List<CannonBall> removeCannonBalls = new List<CannonBall>();
             foreach (var cannon in cannonBalls)
             {
+                if (cannon.Active)
                 cannon.Update(gameTime);
+                else
+                {
+                    removeCannonBalls.Add(cannon);
+                }
             }
+
+            foreach (var cannon in removeCannonBalls)
+            {
+                cannonBalls.Remove(cannon);
+            }
+
+            if (shipsDistanceMin < 2000 && CannonBallTime<=0)
+            {
+                var random = new Random();
+                var CannonEnd = positionEnd;
+                if (random.Next(0, 5) == 4)
+                {
+                    CannonEnd += new Vector3(500, 0, 0);
+                }
+
+                CannonBallTime = 3;
+                cannonBalls.Add(new CannonBall(StartPositionCannon+Position,CannonEnd ,_game,cannonBall, null,this));;
+            }
+            else
+            {
+                CannonBallTime -= (float) gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            /*
             ProcessKeyboard(_game.ElapsedTime);
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
