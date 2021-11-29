@@ -316,20 +316,33 @@ namespace TGC.MonoGame.TP.Objects
             {
                 CanShoot = false;
                 soundShot.Play();
-                var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                /*var normal = (_game.Camera.LookAt - _game.Camera.Position);
                 normal.Normalize();
                 var aux = (float) 0;
                 if (normal.Y >= 0)
                 {
-                    aux =(float) 10000000;
+                    aux =(float) 300;
                 }
                 else
                 {
                     aux = (float)-_game.Camera.Position.Y / normal.Y;
                 }
-                var endPosition = aux * normal + _game.Camera.Position;
-                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
-                
+                var endPosition = aux * normal + _game.Camera.Position;*/
+                //cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
+                var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                normal.Normalize();
+                var distancia = (float) 0;
+                if (_game.Camera.LookAt.Y >= _game.Camera.Position.Y)
+                {
+                    distancia = 2000;
+                }
+                else
+                {
+                    distancia = (_game.Camera.LookAt.Y*2000)/_game.Camera.Position.Y;
+                }
+
+                var endPosition = distancia * normal + _game.Camera.Position;
+                cannonBalls.Add(new CannonBall(_game.Camera.Position + new Vector3(2*normal.X, -10, 2*normal.Z), endPosition,_game,cannonBall, this,null));
             }
 
             if (!mouseState.RightButton.Equals(ButtonState.Pressed))
