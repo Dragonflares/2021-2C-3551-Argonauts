@@ -76,12 +76,11 @@ namespace TGC.MonoGame.TP
         //public Vector3 KDColor = new Vector3(0, 0, 0.2f);
         public Vector3 KDColor = new Vector3(1, 1, 1);
         public Vector3 KSColor = new Vector3(1, 1, 1);
-        private const int ShadowmapSize = 2048;
-        private RenderTarget2D ShadowMapRenderTarget;
+        public const int ShadowmapSize = 3048;
+        public RenderTarget2D ShadowMapRenderTarget;
         public Matrix ViewSun;
         public Matrix ProjectionSun;
         //public Vector3 SunPosition = new Vector3(0f, 0, 1000000);
-
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.

@@ -6,6 +6,7 @@
     #define VS_SHADERMODEL vs_4_0_level_9_1
     #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
+float2 shadowMapSize;
 float4x4 LightViewProjection;
 float4x4 WorldViewProjectionSun;
 float4x4 World;
@@ -26,6 +27,19 @@ float shininess;
 
 float KReflection;
 float KFoam;
+static const float modulatedEpsilon = 0.000041200182749889791011810302734375;
+static const float maxEpsilon = 0.000023200045689009130001068115234375;
+texture shadowMap;
+sampler2D shadowMapSampler =
+sampler_state
+{
+	Texture = <shadowMap>;
+	MinFilter = Point;
+	MagFilter = Point;
+	MipFilter = Point;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
 
 texture baseTexture;
 sampler2D textureSampler = sampler_state
@@ -71,7 +85,7 @@ struct VS_OUTPUT
     float4 WorldPosition : TEXCOORD1;
     float4 Normal : TEXCOORD2;
     float4 ScreenSpacePosition : TEXCOORD3;
-    //float4 LightSpacePosition : TEXCOORD4;
+    float4 LightSpacePosition : TEXCOORD4;
 };
 
 float3 createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {
@@ -129,7 +143,7 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
     output.Normal = input.Normal;
     output.TextureCoordinates = input.TextureCoordinates;
     output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
-    //output.LightSpacePosition = mul(output.WorldPosition, LightViewProjection);
+    output.LightSpacePosition = mul(output.WorldPosition, LightViewProjection);
     return output;
 }
 float3 getNormalFromMap(float2 textureCoordinates, float3 worldPosition, float3 worldNormal)
@@ -148,7 +162,27 @@ float3 getNormalFromMap(float2 textureCoordinates, float3 worldPosition, float3 
 
     return normalize(mul(tangentNormal, TBN));
 }
-
+float4 calcularSombra(float3 colorCalculado, VS_OUTPUT input){
+    float3 lightSpacePosition = input.LightSpacePosition.xyz / input.LightSpacePosition.w;
+    float2 shadowMapTextureCoordinates = 0.5 * lightSpacePosition.xy + float2(0.5, 0.5);
+    shadowMapTextureCoordinates.y = 1.0f - shadowMapTextureCoordinates.y;
+    float3 normal = normalize(input.Normal.rgb);
+    float3 lightDirection = normalize(sunPosition - input.WorldPosition.xyz);
+    float inclinationBias = max(modulatedEpsilon * (1.0 - dot(normal, lightDirection)), maxEpsilon);
+    float notInShadow = 0.0;
+    float2 texelSize = 1.0 / shadowMapSize;
+    for (int x = -1; x <= 1; x++)
+        for (int y = -1; y <= 1; y++)
+        {
+            float pcfDepth = tex2D(shadowMapSampler, shadowMapTextureCoordinates + float2(x, y) * texelSize).r + inclinationBias;
+            notInShadow += step(lightSpacePosition.z, pcfDepth) / 9.0;
+        }
+	
+    float4 baseColor = float4(colorCalculado,1);
+    baseColor.rgb *= 0.5 + 0.5 * notInShadow;
+    return baseColor;
+    //return float4(colorCalculado,1);
+}
 
 float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
 {
@@ -198,12 +232,10 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
      //return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
      //return float4(baseColor,1);
     // return tex2D(colorMap, input.TextureCoordinates);
-    //return calcularSombra(baseColor, input);
-    return float4(baseColor,1);
+    return calcularSombra(baseColor, input);
+    //return float4(baseColor,1);
 }
-float4  calcularSombra(float3 colorCalculado, VS_OUTPUT input){
-    return float4(colorCalculado,1);
-}
+
 float4 ps_RenderTerrainDepth(VS_OUTPUT input) : COLOR0
 {
     float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;

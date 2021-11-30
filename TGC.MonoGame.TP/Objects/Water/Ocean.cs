@@ -58,6 +58,8 @@ namespace TGC.MonoGame.TP.Objects.Water
             Effect.CurrentTechnique = Effect.Techniques[nameEffect];
             var graphicsDevice = Effect.GraphicsDevice;
             Effect.Parameters["WorldViewProjectionSun"]?.SetValue(World* Game.ViewSun * Game.ProjectionSun);
+            Effect.Parameters["shadowMapSize"]?.SetValue(Vector2.One * TGCGame.ShadowmapSize);
+            Effect.Parameters["shadowMap"]?.SetValue(Game.ShadowMapRenderTarget);
             Effect.Parameters["LightViewProjection"]?.SetValue(Game.ViewSun * Game.ProjectionSun);
             Effect.Parameters["World"]?.SetValue(World);
             Effect.Parameters["View"]?.SetValue(View);
