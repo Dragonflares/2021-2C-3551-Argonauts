@@ -186,9 +186,7 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            if (MainShip.Life <=0)
-                menu.Draw(gameTime,"Retry");
-            if (GameState == "START")
+            if (GameState == "START" || MainShip.Life <=0)
             {
                 if (MediaPlayer.State != MediaState.Playing )
                 {
