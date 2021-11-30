@@ -75,15 +75,19 @@ namespace TGC.MonoGame.TP
             
             if (Game.Camera.CanShoot)
             {
-                Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
-                    DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                Game.spriteBatch.Draw(Game.Mira,
-                    new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 400, Game.GraphicsDevice.Viewport.Height / 2 - 300,
-                        800, 600), Color.White);
-                Game.spriteBatch.End();
-                Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-                Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-                Game.GraphicsDevice.BlendState = BlendState.Opaque;
+                if (nameEffect != "DepthMap")
+                {
+                    Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                    Game.spriteBatch.Draw(Game.Mira,
+                        new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 400,
+                            Game.GraphicsDevice.Viewport.Height / 2 - 300,
+                            800, 600), Color.White);
+                    Game.spriteBatch.End();
+                    Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                    Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+                    Game.GraphicsDevice.BlendState = BlendState.Opaque;
+                }
             }
             
             
