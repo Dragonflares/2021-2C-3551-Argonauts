@@ -50,5 +50,6 @@
     <Compile Remove="Objects\GizmosCube.cs" />
     <Compile Remove="Objects\GizmoGeometri.cs" />
     <Compile Remove="Callbacks.cs" />
+    <Compile Remove="Water.cs" />
   </ItemGroup>
 </Project>

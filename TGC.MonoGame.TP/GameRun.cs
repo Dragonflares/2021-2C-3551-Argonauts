@@ -38,7 +38,7 @@ namespace TGC.MonoGame.TP
         }
 
 
-        public void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime, String nameEffect)
         {
             
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -58,7 +58,7 @@ namespace TGC.MonoGame.TP
             
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
-            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);
+            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, nameEffect);
             Game.MainShip.Draw();
             for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
             {

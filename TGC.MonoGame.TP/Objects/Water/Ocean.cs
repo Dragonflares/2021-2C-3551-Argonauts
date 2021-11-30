@@ -14,9 +14,10 @@ namespace TGC.MonoGame.TP.Objects.Water
         private float m_scaleXZ = 1;
         private float m_scaleY = 1;
         private VertexBuffer vbTerrain;
-
+        private TGCGame Game;
         public Water2(GraphicsDevice graphicsDevice,  TGCGame Game)
         {
+            this.Game = Game;
             Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "terrain");
             var terrainTexture = Game.Content.Load<Texture2D>("Textures/" + "Ocean2");
             Effect.Parameters["normalTexture"]?.SetValue(terrainTexture);
@@ -51,11 +52,15 @@ namespace TGC.MonoGame.TP.Objects.Water
         /// <summary>
         ///     Renderiza el terreno
         /// </summary>
-        public void Draw(Matrix World, Matrix View, Matrix Projection, float time)
+        public void Draw(Matrix World, Matrix View, Matrix Projection, float time, String nameEffect)
         {
             LoadHeightmap(Effect.GraphicsDevice, 100, 4, Vector3.Zero, time);
+            Effect.CurrentTechnique = Effect.Techniques[nameEffect];
             var graphicsDevice = Effect.GraphicsDevice;
-
+            Effect.Parameters["WorldViewProjectionSun"]?.SetValue(World* Game.ViewSun * Game.ProjectionSun);
+            Effect.Parameters["shadowMapSize"]?.SetValue(Vector2.One * TGCGame.ShadowmapSize);
+            Effect.Parameters["shadowMap"]?.SetValue(Game.ShadowMapRenderTarget);
+            Effect.Parameters["LightViewProjection"]?.SetValue(Game.ViewSun * Game.ProjectionSun);
             Effect.Parameters["World"]?.SetValue(World);
             Effect.Parameters["View"]?.SetValue(View);
             Effect.Parameters["Projection"]?.SetValue(Projection);
