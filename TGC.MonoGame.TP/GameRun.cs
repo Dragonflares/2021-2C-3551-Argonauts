@@ -48,7 +48,10 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Game.GraphicsDevice.RasterizerState = rasterizerState;
-            Game.SkyBox.Draw(View, Projection, new Vector3(0,-200,0));
+            Game.SkyBox.Draw(Matrix.CreateLookAt(new Vector3(0,-200,0), new Vector3(1,0,0), Vector3.Up), 
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
+                    20000f), 
+                Vector3.UnitX * 20 +new Vector3(0,-200,0));
             Game.GraphicsDevice.RasterizerState = originalRasterizerState;
             
             
@@ -88,12 +91,22 @@ namespace TGC.MonoGame.TP
 
         public void Update(GameTime gameTime)
         {
+            List<EnemyShip> removeShips = new List<EnemyShip>();
             for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
             {
                 if (Game.EnemyShips[eShip].Life > 0)
                 {
                     Game.EnemyShips[eShip].Update(gameTime);
                 }
+                else
+                {
+                    removeShips.Add(Game.EnemyShips[eShip]);
+                }
+            }
+            foreach (var ship in removeShips)
+            {
+                Game.EnemyShips.Remove(ship);
+                Game.CountEnemyShip--;
             }
             Game.MainShip.Update(gameTime);
             Game.Camera.SetPosition(Game.MainShip.Position);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -52,7 +53,7 @@ namespace TGC.MonoGame.TP
         
         public MainShip MainShip;
 
-        public EnemyShip[] EnemyShips;
+        public List<EnemyShip> EnemyShips;
         public int CountEnemyShip = 10;
         public float ElapsedTime = 0;
         private Song Song { get; set; }
@@ -71,6 +72,7 @@ namespace TGC.MonoGame.TP
         public Texture2D islasTexture;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
         public Vector3 SunPosition = new Vector3(-200f, 15000, 100);
+        public Vector2 LimitSpaceGame = new Vector2(5000, 7000);
 
         public Vector3 KAColor = new Vector3(0, 0, 0.4f);
         //public Vector3 KDColor = new Vector3(0, 0, 0.2f);
@@ -102,10 +104,10 @@ namespace TGC.MonoGame.TP
             World = Matrix.CreateRotationY(MathHelper.Pi);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 10, this );
-            EnemyShips = new EnemyShip[CountEnemyShip];
+            EnemyShips = new List<EnemyShip>();
             for (int eShip = 0; eShip < CountEnemyShip; eShip++)
             {
-                EnemyShips[eShip] = new EnemyShip(new Vector3(600f * (Math.Abs(eShip/2)*2-1), 10f, eShip * 1300 -1300*CountEnemyShip/2), new Vector3(0,0,0),10,this);
+                EnemyShips.Add(new EnemyShip(new Vector3(600f * (Math.Abs(eShip/2)*2-1), 10f, eShip * 1300 -1300*CountEnemyShip/2), new Vector3(0,0,0),10,this));
             }
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip, GameState == "START");
             gameRun = new GameRun(this);
@@ -184,6 +186,8 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            if (MainShip.Life <=0)
+                menu.Draw(gameTime,"Retry");
             if (GameState == "START")
             {
                 if (MediaPlayer.State != MediaState.Playing )
@@ -217,18 +221,25 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             // Set the render target as our shadow map, we are drawing the depth into this texture
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+            if (MainShip.Life <= 0)
+                GameState = "GAMEOVER";
+                menu.Draw(gameTime,"Retry","DepthMap" );
             if (GameState == "START")
-                menu.Draw(gameTime, "DepthMap");
+                menu.Draw(gameTime,"Play", "DepthMap");
             if (GameState == "PLAY" || GameState == "RESUME")
                 gameRun.Draw(gameTime, "DepthMap");
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+            if (MainShip.Life <= 0)
+                GameState = "GAMEOVER";
+                menu.Draw(gameTime,"Retry","ShadowMap" );
             if (GameState == "START")
-                menu.Draw(gameTime, "ShadowMap");
+                menu.Draw(gameTime,"Play", "ShadowMap");
             if (GameState == "PLAY" || GameState == "RESUME")
                 gameRun.Draw(gameTime,"ShadowMap");
 

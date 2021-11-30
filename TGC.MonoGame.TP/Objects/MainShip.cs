@@ -34,11 +34,11 @@ namespace TGC.MonoGame.TP.Objects
         private Boolean CanShoot { get; set; }
         
         private Model cannonBall { get; set; }
-        private List <CannonBall> cannonBalls= new List <CannonBall>();
+        public List <CannonBall> cannonBalls= new List <CannonBall>();
 
         private SoundEffect soundShot { get; set; }
-        private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
-        private int Life = 100;
+        private Vector3 StartPositionCannon = new Vector3(0, 250, 80);
+        public int Life = 100;
         private Effect Effect;
         private SpriteFont SpriteFont;
         public OrientedBoundingBox ShipBox { get; set; }
@@ -197,9 +197,21 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Update(GameTime gameTime)
         {
+            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
+            List<CannonBall> removeCannonBalls = new List<CannonBall>();
             foreach (var cannon in cannonBalls)
             {
-                cannon.Update(gameTime);
+                if (cannon.Active)
+                    cannon.Update(gameTime);
+                else
+                {
+                    removeCannonBalls.Add(cannon);
+                }
+            }
+
+            foreach (var cannon in removeCannonBalls)
+            {
+                cannonBalls.Remove(cannon);
             }
             Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
             Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
@@ -207,7 +219,6 @@ namespace TGC.MonoGame.TP.Objects
             ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
-            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
             ShipBox.Center = Position;
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)
@@ -234,6 +245,10 @@ namespace TGC.MonoGame.TP.Objects
                     speed = 0;
                     break;
                 }
+            Position.X = Math.Min(Position.X,_game.LimitSpaceGame.X);
+            Position.Z = Math.Min(Position.Z,_game.LimitSpaceGame.Y);
+            Position.X = Math.Max(Position.X,-_game.LimitSpaceGame.X);
+            Position.Z = Math.Max(Position.Z,-_game.LimitSpaceGame.Y);
             PositionAnterior = Position;
         }
 
@@ -301,20 +316,33 @@ namespace TGC.MonoGame.TP.Objects
             {
                 CanShoot = false;
                 soundShot.Play();
-                var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                /*var normal = (_game.Camera.LookAt - _game.Camera.Position);
                 normal.Normalize();
                 var aux = (float) 0;
                 if (normal.Y >= 0)
                 {
-                    aux =(float) 10000000;
+                    aux =(float) 300;
                 }
                 else
                 {
                     aux = (float)-_game.Camera.Position.Y / normal.Y;
                 }
-                var endPosition = aux * normal + _game.Camera.Position;
-                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
-                
+                var endPosition = aux * normal + _game.Camera.Position;*/
+                //cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
+                var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                normal.Normalize();
+                var distancia = (float) 0;
+                if (_game.Camera.LookAt.Y >= _game.Camera.Position.Y)
+                {
+                    distancia = 2000;
+                }
+                else
+                {
+                    distancia = (_game.Camera.LookAt.Y*2000)/_game.Camera.Position.Y;
+                }
+
+                var endPosition = distancia * normal + _game.Camera.Position;
+                cannonBalls.Add(new CannonBall(_game.Camera.Position + new Vector3(2*normal.X, -10, 2*normal.Z), endPosition,_game,cannonBall, this,null));
             }
 
             if (!mouseState.RightButton.Equals(ButtonState.Pressed))
@@ -388,7 +416,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Shoted()
         {
-            Life--;
+            Life-=10;
         }
     }
 }

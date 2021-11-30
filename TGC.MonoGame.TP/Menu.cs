@@ -49,7 +49,7 @@ namespace TGC.MonoGame.TP
             soundButtom = Game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + "Button");
             Song = Game.Content.Load<Song>(TGCGame.ContentFolderMusic + "Menu");
             MediaPlayer.IsRepeating = true;
-            View = Matrix.CreateLookAt(new Vector3(0,0,0), new Vector3(1,0,0), Vector3.Up);
+            View = Matrix.CreateLookAt(new Vector3(0,-200,0), new Vector3(1,0,0), Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
                     8000f);
@@ -99,14 +99,14 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        public void Draw(GameTime gameTime, String NameEffect)
+        public void Draw(GameTime gameTime,String text, String NameEffect)
         {
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
             var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Game.GraphicsDevice.RasterizerState = rasterizerState;
-            Game.SkyBox.Draw(View, Projection, new Vector3(0,-200,0));
+            Game.SkyBox.Draw(View, Projection, new Vector3(0,-300,0));
             Game.GraphicsDevice.RasterizerState = originalRasterizerState;
             
             Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
@@ -116,7 +116,7 @@ namespace TGC.MonoGame.TP
             spriteBatch.Draw(botonesCurrentPlay,
                 new Rectangle(250, 50,
                     200, 100), Color.White);
-            spriteBatch.DrawString(font, "Play", new Vector2(285, 60), Color.White);
+            spriteBatch.DrawString(font, text, new Vector2(285, 60), Color.White);
             spriteBatch.Draw(botonesCurrentExit,
                 new Rectangle(800, 50,
                     200, 100), Color.White);

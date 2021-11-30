@@ -14,7 +14,7 @@ namespace TGC.MonoGame.TP.Objects
         /// <param name="model">The geometry to use for SkyBox.</param>
         /// <param name="texture">The SkyBox texture to use.</param>
         /// <param name="effect">The size of the cube.</param>
-        public SkyBox(Model model, TextureCube texture, Effect effect) : this(model, texture, effect, 500)
+        public SkyBox(Model model, TextureCube texture, Effect effect) : this(model, texture, effect, 8000)
         {
         }
 
