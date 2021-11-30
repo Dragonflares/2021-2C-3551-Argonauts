@@ -47,7 +47,6 @@ namespace TGC.MonoGame.TP
         public Vector3[] posicionesIslas;
 
         public int cantIslas;
-        public Water ocean { get; set; }
         public Matrix World { get; set; }
         public Camera Camera { get; set; }
         
@@ -77,7 +76,10 @@ namespace TGC.MonoGame.TP
         //public Vector3 KDColor = new Vector3(0, 0, 0.2f);
         public Vector3 KDColor = new Vector3(1, 1, 1);
         public Vector3 KSColor = new Vector3(1, 1, 1);
-        
+        private const int ShadowmapSize = 2048;
+        private RenderTarget2D ShadowMapRenderTarget;
+        public Matrix ViewSun;
+        public Matrix ProjectionSun;
         //public Vector3 SunPosition = new Vector3(0f, 0, 1000000);
 
 
@@ -121,7 +123,13 @@ namespace TGC.MonoGame.TP
                 new Vector3(-1500f, 0f, 4000f) };
 
             cantIslas = posicionesIslas.Length;
-            
+            var FrontDirection = Vector3.Normalize(Vector3.Zero - SunPosition);
+            var RightDirection = Vector3.Normalize(Vector3.Cross(Vector3.Up, FrontDirection));
+            var UpDirection = Vector3.Cross(FrontDirection, RightDirection);
+            ViewSun = Matrix.CreateLookAt(SunPosition, SunPosition + FrontDirection, UpDirection);
+            var LightCameraNearPlaneDistance = 5f;
+            var LightCameraFarPlaneDistance = 3000f;
+            ProjectionSun = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2,1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance);
             base.Initialize();
         }
 
@@ -140,7 +148,6 @@ namespace TGC.MonoGame.TP
                 EnemyShips[eShip].LoadContent();
             }
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
-            ocean = new Water(Content);
             //islands = new Model[cantIslas];
             Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
             Life = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida");
@@ -165,6 +172,8 @@ namespace TGC.MonoGame.TP
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             base.LoadContent();
         }
 
@@ -209,10 +218,21 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            // Set the render target as our shadow map, we are drawing the depth into this texture
+            GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
             if (GameState == "START")
-                menu.Draw(gameTime);
+                menu.Draw(gameTime, "DepthMap");
             if (GameState == "PLAY" || GameState == "RESUME")
-                gameRun.Draw(gameTime);
+                gameRun.Draw(gameTime, "DepthMap");
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+            if (GameState == "START")
+                menu.Draw(gameTime, "ShadowMap");
+            if (GameState == "PLAY" || GameState == "RESUME")
+                gameRun.Draw(gameTime,"ShadowMap");
+
         }
 
         /// <summary>

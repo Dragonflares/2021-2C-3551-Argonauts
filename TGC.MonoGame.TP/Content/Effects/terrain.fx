@@ -6,14 +6,14 @@
     #define VS_SHADERMODEL vs_4_0_level_9_1
     #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
-
+float4x4 LightViewProjection;
+float4x4 WorldViewProjectionSun;
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float Time = 0;
 float3 cameraPosition;
 float3 sunPosition;
-
 float KAmbient;
 float3 ambientColor;
 
@@ -70,6 +70,8 @@ struct VS_OUTPUT
     float2 TextureCoordinates : TEXCOORD0;
     float4 WorldPosition : TEXCOORD1;
     float4 Normal : TEXCOORD2;
+    float4 ScreenSpacePosition : TEXCOORD3;
+    //float4 LightSpacePosition : TEXCOORD4;
 };
 
 float3 createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {
@@ -126,6 +128,8 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
 
     output.Normal = input.Normal;
     output.TextureCoordinates = input.TextureCoordinates;
+    output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
+    //output.LightSpacePosition = mul(output.WorldPosition, LightViewProjection);
     return output;
 }
 float3 getNormalFromMap(float2 textureCoordinates, float3 worldPosition, float3 worldNormal)
@@ -194,10 +198,27 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
      //return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
      //return float4(baseColor,1);
     // return tex2D(colorMap, input.TextureCoordinates);
+    //return calcularSombra(baseColor, input);
     return float4(baseColor,1);
 }
+float4  calcularSombra(float3 colorCalculado, VS_OUTPUT input){
+    return float4(colorCalculado,1);
+}
+float4 ps_RenderTerrainDepth(VS_OUTPUT input) : COLOR0
+{
+    float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;
+    return float4(depth, depth, depth, 1.0);
+}
+technique DepthMap
+{
+    pass Pass_0
+    {
+        VertexShader = compile VS_SHADERMODEL vs_RenderTerrain();
+        PixelShader = compile PS_SHADERMODEL ps_RenderTerrainDepth();
+    }
+}
 
-technique RenderTerrain
+technique ShadowMap
 {
     pass Pass_0
     {

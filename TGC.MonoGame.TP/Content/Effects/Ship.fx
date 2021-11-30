@@ -7,6 +7,7 @@
 	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
+float4x4 WorldViewProjectionSun;
 float4x4 WorldViewProjection;
 float4x4 World;
 float4x4 InverseTransposeWorld;
@@ -46,6 +47,7 @@ struct VertexShaderOutput
     float4 Color : COLOR0;
     float4 WorldPosition : TEXCOORD1;
     float4 Normal : TEXCOORD2;    
+    float4 ScreenSpacePosition : TEXCOORD3;
 };
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
@@ -57,6 +59,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     output.Normal = mul(input.Normal, InverseTransposeWorld);
     output.TextureCoordinates = input.TextureCoordinates;
 	output.Color = input.Color;
+	output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
 	return output;
 }
 
@@ -83,12 +86,25 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     return finalColor;
 
 }
+float4 MainPSDepth(VertexShaderOutput input) : COLOR0
+{
+    float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;
+    return float4(depth, depth, depth, 1.0);
+}
+technique DepthMap
+{
+	pass Pass0
+	{
+		VertexShader = compile VS_SHADERMODEL MainVS();
+		PixelShader = compile PS_SHADERMODEL MainPSDepth();
+	}
+}
 
-technique BasicColorDrawing
+technique ShadowMap
 {
 	pass Pass0
 	{
 		VertexShader = compile VS_SHADERMODEL MainVS();
 		PixelShader = compile PS_SHADERMODEL MainPS();
 	}
-};
+}

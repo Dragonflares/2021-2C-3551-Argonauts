@@ -67,8 +67,9 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["shininess"]?.SetValue(100f);
         }
 
-        private void DrawShip(Model model, float angle)
+        private void DrawShip(Model model, float angle, String NameEffect)
         {
+            Effect.CurrentTechnique = Effect.Techniques[NameEffect];
             var dir = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
             var tan = new Vector2(-MathF.Sin(angle), MathF.Cos(angle));
             var pos = new Vector2(2000, -100);
@@ -85,19 +86,20 @@ namespace TGC.MonoGame.TP
             {
                 // We set the main matrices for each mesh to draw
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
+                Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.ViewSun*Game.ProjectionSun);
                 // World is used to transform from model space to world space
-                Effect.Parameters["World"].SetValue(worldMatrix);
+                Effect.Parameters["World"]?.SetValue(worldMatrix);
                 // InverseTransposeWorld is used to rotate normals
-                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
                 // WorldViewProjection is used to transform from model space to clip space
-                Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix *Game.Camera.View * Game.Camera.Projection);
+                Effect.Parameters["WorldViewProjection"]?.SetValue(worldMatrix *Game.Camera.View * Game.Camera.Projection);
 
                 // Once we set these matrices we draw
                 modelMesh.Draw();
             }
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime, String NameEffect)
         {
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
             var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
@@ -107,8 +109,8 @@ namespace TGC.MonoGame.TP
             Game.SkyBox.Draw(View, Projection, new Vector3(0,-200,0));
             Game.GraphicsDevice.RasterizerState = originalRasterizerState;
             
-            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds);
-            DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds);
+            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
+            DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             spriteBatch.Draw(botonesCurrentPlay,
