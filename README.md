@@ -26,4 +26,4 @@ Chiara, Mazzarella
 ![screenshot3](https://i.imgur.com/iGUpcrf.jpg)
 
 ## Game Play
-[![video]https://i.imgur.com/62Vq20k.jpg)](https://youtu.be/D8gASjnGAQo)
+[![video](https://i.imgur.com/62Vq20k.jpg)](https://youtu.be/D8gASjnGAQo)
