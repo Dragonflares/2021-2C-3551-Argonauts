@@ -18,7 +18,7 @@ El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacer
 ## Integrantes
 Chiara, Mazzarella
  -------------
-<img src="https://media-exp1.licdn.com/dms/image/C4E03AQGIQD6-I4ZINw/profile-displayphoto-shrink_800_800/0/1569194006766?e=1643846400&v=beta&t=jZhSy31AulXgsclhUJntMfIBqAwouwLyIdmh9IfPmIk" height="500">
+<img src="https://media-exp1.licdn.com/dms/image/C4E03AQGIQD6-I4ZINw/profile-displayphoto-shrink_800_800/0/1569194006766?e=1643846400&v=beta&t=jZhSy31AulXgsclhUJntMfIBqAwouwLyIdmh9IfPmIk" height="200">
 
 ## Capturas
 ![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
