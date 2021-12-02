@@ -26,4 +26,4 @@ Chiara, Mazzarella
 ![screenshot3](https://i.imgur.com/iGUpcrf.jpg)
 
 ## Game Play
-<iframe width="900" height="506" src="https://www.youtube.com/embed/D8gASjnGAQo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+![video](https://www.youtube.com/embed/D8gASjnGAQo)
