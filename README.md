@@ -1,6 +1,6 @@
 # WarShip - World of Warships
 
-![imagen](https://wowsp-wows-eu.wgcdn.co/static/0.2/images/wows_social_1.jpg)
+![imagen](https://media-exp1.licdn.com/dms/image/C4E03AQGIQD6-I4ZINw/profile-displayphoto-shrink_800_800/0/1569194006766?e=1643846400&v=beta&t=jZhSy31AulXgsclhUJntMfIBqAwouwLyIdmh9IfPmIk)
 ## Descripcion:
 El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacerles daño sin recibir demasiado para no hundirse.
 
