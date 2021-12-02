@@ -21,9 +21,9 @@ Chiara, Mazzarella
 <img src="https://media-exp1.licdn.com/dms/image/C4E03AQGIQD6-I4ZINw/profile-displayphoto-shrink_800_800/0/1569194006766?e=1643846400&v=beta&t=jZhSy31AulXgsclhUJntMfIBqAwouwLyIdmh9IfPmIk" height="200">
 
 ## Capturas
-![screenshot1](https://imgur.com/62Vq20k)
-![screenshot2](https://imgur.com/04UmGkA)
-![screenshot3](https://imgur.com/iGUpcrf)
+![screenshot1](https://i.imgur.com/62Vq20k.jpg)
+![screenshot2](https://i.imgur.com/04UmGkA.jpg)
+![screenshot3](https://i.imgur.com/iGUpcrf.jpg)
 
 ## Game Play
 [![Watch the video](https://img.youtube.com/vi/pgEwUC0jvH4/0.jpg)](https://www.youtube.com/playlist?list=PLRM4L32DjvnazuMl8wZlbpEYL5Qh63ulG)
