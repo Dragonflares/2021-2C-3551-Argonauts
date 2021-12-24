@@ -62,7 +62,7 @@ namespace TGC.MonoGame.Samples.Cameras
         /// <summary>
         ///     Position where the camera is located.
         /// </summary>
-        public Vector3 Position { get; set; }
+        public Vector3 Position;
 
         /// <summary>
         ///     Represents the positive x-axis of the camera space.
@@ -99,6 +99,15 @@ namespace TGC.MonoGame.Samples.Cameras
         public virtual void SetPosition(Vector3 position)
         {
             TargetPosition = position;
+        }
+
+        public virtual Matrix GetView()
+        {
+            return View;
+        }
+        public virtual Matrix GetProjection()
+        {
+            return Projection;
         }
         /// <summary>
         ///     Allows updating the internal state of the camera if this method is overwritten.

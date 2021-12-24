@@ -8,7 +8,7 @@ using static TGC.MonoGame.TP.Objects.CannonBall;
 
 namespace TGC.MonoGame.TP.Objects
 {
-    public class MainShip
+    public class EnemyShip
     {
         public Vector3 Position;
         public Vector3 PositionAnterior { get; set; }
@@ -31,31 +31,46 @@ namespace TGC.MonoGame.TP.Objects
 
         public string ModelName;
         public string SoundShotName;
+        private float CannonBallTime=0;
         private Boolean CanShoot { get; set; }
-        
+
         private Model cannonBall { get; set; }
-        public List <CannonBall> cannonBalls= new List <CannonBall>();
+        private List<CannonBall> cannonBalls = new List<CannonBall>();
 
         private SoundEffect soundShot { get; set; }
-        private Vector3 StartPositionCannon = new Vector3(0, 250, 80);
-        public int Life = 100;
-        private Effect Effect;
+        private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
+        public int Life = 50;
         private SpriteFont SpriteFont;
-        public OrientedBoundingBox ShipBox { get; set; }
-        private bool AreAABBsTouching { get; set; }
         private float initialScale;
-
-        private float KA = 0.3f;
-
-        private float KD = 1f;
-
-        private float KS = 0.5f;
-        private Texture2D TextureShip;
-
-        private float Shininess = 7;
-        //private Vector3 PositionAnterior;
-        public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
+        private float Kspecular;
+        public OrientedBoundingBox ShipBox { get; set; }
+        private bool Active;
+        private Effect Effect;
+        private String ModelTexture;
+        private Texture2D texture;
+        public EnemyShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
+            var rnd = new Random();
+            var BarcoIndex = rnd.Next(2);
+            if (BarcoIndex == 0)
+            {
+                //Barco azul
+                ModelName = "Barco2/Barco2";
+                initialScale = 1 ;
+                anguloInicial = 0;
+                ModelTexture = "Barco2";
+                Kspecular = 1f;
+
+            }
+            else
+            {   //Barco rojo
+                ModelName = "Barco3";
+                initialScale = 1 ;
+                anguloInicial = (float)Math.PI/2;;
+                ModelTexture = "Barco2";
+                Kspecular = 0.1f;
+
+            }
             speed = 0;
             Position = initialPosition;
             PositionAnterior = Position;
@@ -63,17 +78,15 @@ namespace TGC.MonoGame.TP.Objects
             maxspeed = MaxSpeed;
             maxacceleration = 0.1f;
             anguloDeGiro = 0f;
-            anguloInicial = (float) (Math.PI/2);
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
             HandBrake = false;
             pressedReverse = false;
-            ModelName = "Barco";
+            
             SoundShotName = "Shot";
             _game = game;
             SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
-            initialScale = 0.03f;
         }
 
         public void LoadContent()
@@ -81,21 +94,26 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
+            texture = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + ModelTexture);
+            
+            var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
+            temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
+            // Create an Oriented Bounding Box from the AABB
+            ShipBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+            // Move the center
+            ShipBox.Center = Position;
+            // Then set its orientation!
+            ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
+            
             Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
-            TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "BarcoPrincipal2");
             foreach (var modelMesh in modelo.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
+
             Effect.Parameters["ambientColor"]?.SetValue(_game.KAColor);
             Effect.Parameters["diffuseColor"]?.SetValue(_game.KDColor);
             Effect.Parameters["specularColor"]?.SetValue(_game.KSColor);
             
-            
-            var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
-            temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
-            ShipBox = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
-            ShipBox.Center = Position;
-            ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
         }
         private void DrawShip()
@@ -108,11 +126,11 @@ namespace TGC.MonoGame.TP.Objects
             
             var modelMeshesBaseTransforms = new Matrix[modelo.Bones.Count];
             modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-            Effect.Parameters["KAmbient"]?.SetValue(0.1f);
-            Effect.Parameters["KDiffuse"]?.SetValue(0.7f);
-            Effect.Parameters["KSpecular"]?.SetValue(0.1f);
-            Effect.Parameters["shininess"]?.SetValue(100f);
-            Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
+            Effect.Parameters["baseTexture"]?.SetValue(texture);
+            Effect.Parameters["KAmbient"]?.SetValue(1f);
+            Effect.Parameters["KDiffuse"]?.SetValue(1f);
+            Effect.Parameters["KSpecular"]?.SetValue(Kspecular);
+            Effect.Parameters["shininess"]?.SetValue(0.5f);
             foreach (var modelMesh in modelo.Meshes)
             {
                 // We set the main matrices for each mesh to draw
@@ -173,66 +191,73 @@ namespace TGC.MonoGame.TP.Objects
             Orientacion.M44 = 1;
             return Orientacion;
         }
+
         public void Draw()
         {
-            _game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            _game.spriteBatch.DrawString(SpriteFont, Life.ToString(), new Vector2(_game.GraphicsDevice.Viewport.Width - 110, 50), Color.White);
-            _game.spriteBatch.Draw(_game.Life,
-                new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
-                    200, 30), Color.White);
-            _game.spriteBatch.Draw(_game.Life2,
-                new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
-                    Life *2, 30), Color.Green);
-            _game.spriteBatch.End();
-            _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            _game.GraphicsDevice.BlendState = BlendState.Opaque;
+            //modelo.Draw(
+            //    Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
+            //    Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
             DrawShip();
             foreach (var cannon in cannonBalls)
             {
-                cannon.Draw();
+                if (cannon.Active)
+                {
+                    cannon.Draw();
+                }
             }
         }
 
+        public void Shoted()
+        {
+            Life-=10;
+        }
         public void Update(GameTime gameTime)
         {
             Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
-            List<CannonBall> removeCannonBalls = new List<CannonBall>();
-            foreach (var cannon in cannonBalls)
+            Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
+            Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
+            var shipsDistanceMin = 10000000000000f;
+            var positionEnd = Position;
+            if ((_game.MainShip.Position - Position).Length() < shipsDistanceMin)
             {
-                if (cannon.Active)
-                    cannon.Update(gameTime);
-                else
+                shipsDistanceMin = (_game.MainShip.Position - Position).Length();
+                positionEnd = _game.MainShip.Position;
+            }
+            foreach (var ship in  _game.EnemyShips)
+            {
+                if (ship!= this &&
+                    (ship.Position - Position).Length() < shipsDistanceMin)
                 {
-                    removeCannonBalls.Add(cannon);
+                    shipsDistanceMin = (ship.Position - Position).Length();
+                    positionEnd = ship.Position;
                 }
             }
 
-            foreach (var cannon in removeCannonBalls)
+            if (shipsDistanceMin > 300)
             {
-                cannonBalls.Remove(cannon);
+                MoveTo(positionEnd);
             }
-            Effect.Parameters["lightPosition"]?.SetValue(_game.SunPosition);
-            Effect.Parameters["eyePosition"]?.SetValue(_game.Camera.Position);
-            ProcessKeyboard(_game.ElapsedTime);
-            ProcessMouse(gameTime);
+            else
+            {
+                speed = 0;
+                currentGear = 0;
+            }
             UpdateMovementSpeed(gameTime);
             Move();
             ShipBox.Center = Position;
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial) * CalcularMatrizOrientacion(Position);
             for (int ship = 0; ship < _game.CountEnemyShip; ship++)
-                    if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox))
-                    {
-                        ShipBox.Center = PositionAnterior;
-                        Position = PositionAnterior;
-                        currentGear = 0;
-                        HandBrake = false;
-                        pressedReverse = false;
-                        pressedAccelerator = false;
-                        speed = 0;
-                        break;
-                    }
+                if (ShipBox.Intersects(_game.EnemyShips[ship].ShipBox)&& ShipBox !=_game.EnemyShips[ship].ShipBox)
+                {
+                    ShipBox.Center = PositionAnterior;
+                    Position = PositionAnterior;
+                    currentGear = 0;
+                    HandBrake = false;
+                    pressedReverse = false;
+                    pressedAccelerator = false;
+                    speed = 0;
+                    break;
+                }
             for (int isla = 0; isla < _game.cantIslas; isla++)
                 if (ShipBox.Intersects(_game.Islas[isla].IslasBox))
                 {
@@ -245,26 +270,96 @@ namespace TGC.MonoGame.TP.Objects
                     speed = 0;
                     break;
                 }
+
             Position.X = Math.Min(Position.X,_game.LimitSpaceGame.X);
             Position.Z = Math.Min(Position.Z,_game.LimitSpaceGame.Y);
             Position.X = Math.Max(Position.X,-_game.LimitSpaceGame.X);
             Position.Z = Math.Max(Position.Z,-_game.LimitSpaceGame.Y);
             PositionAnterior = Position;
+            List<CannonBall> removeCannonBalls = new List<CannonBall>();
+            foreach (var cannon in cannonBalls)
+            {
+                if (cannon.Active)
+                cannon.Update(gameTime);
+                else
+                {
+                    removeCannonBalls.Add(cannon);
+                }
+            }
+
+            foreach (var cannon in removeCannonBalls)
+            {
+                cannonBalls.Remove(cannon);
+            }
+
+            if (shipsDistanceMin < 2000 && CannonBallTime<=0)
+            {
+                var random = new Random();
+                var CannonEnd = positionEnd;
+                if (random.Next(0, 5) == 4)
+                {
+                    CannonEnd += new Vector3(500, 0, 0);
+                }
+
+                CannonBallTime = 3;
+                cannonBalls.Add(new CannonBall(StartPositionCannon+Position,CannonEnd ,_game,cannonBall, null,this));;
+            }
+            else
+            {
+                CannonBallTime -= (float) gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            /*
+            ProcessKeyboard(_game.ElapsedTime);
+            ProcessMouse(gameTime);
+            UpdateMovementSpeed(gameTime);
+            Move();*/
         }
 
+        private void MoveTo(Vector3 position)
+        {
+            var Vectordestino = new Vector2(position.X-Position.X, position.Z-Position.Z);
+            var angulodestino = Math.Atan(  Vectordestino.Y/Vectordestino.X);
+            if (angulodestino > Math.PI / 2)
+            {
+                pressedReverse = true;
+                angulodestino = angulodestino - Math.PI ;
+            }
+            else
+            {
+                if (angulodestino < -Math.PI / 2)
+                {
+                    pressedReverse = true;
+                    angulodestino = Math.PI - angulodestino;
+                }
+            }
+            if (speed != 0)
+            {
+                anguloDeGiro += (float)Math.Min(0.003f, angulodestino - anguloDeGiro);
+            }
+
+            if (pressedReverse)
+            {
+                currentGear = Math.Min(currentGear - 1, -2);
+            }
+            else
+            {
+                currentGear = Math.Max(currentGear + 1, 3);
+            }
+        }
+        
+        
         public void Move()
         {
-            var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
+            var newOrientacion = new Vector3((float) Math.Sin(anguloDeGiro), 0, (float) Math.Cos(anguloDeGiro));
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
             //var extraSpeed = 10;
-            var extraSpeed=0;
+            var extraSpeed = 0;
             if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
-            
-            Position += orientacion*speed ;
-            Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
+
+            Position += orientacion * speed;
             if (PositionAnterior.Y < Position.Y)
             {
                 Position -= orientacion * speed * (0.25f * (Position.Y - PositionAnterior.Y));
@@ -316,107 +411,27 @@ namespace TGC.MonoGame.TP.Objects
             {
                 CanShoot = false;
                 soundShot.Play();
-                /*var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                var normal = (_game.Camera.LookAt - _game.Camera.Position);
                 normal.Normalize();
                 var aux = (float) 0;
                 if (normal.Y >= 0)
                 {
-                    aux =(float) 300;
+                    aux = (float) 10000000;
                 }
                 else
                 {
-                    aux = (float)-_game.Camera.Position.Y / normal.Y;
-                }
-                var endPosition = aux * normal + _game.Camera.Position;*/
-                //cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall, this,null));
-                var normal = (_game.Camera.LookAt - _game.Camera.Position);
-                normal.Normalize();
-                var distancia = (float) 0;
-                if (_game.Camera.LookAt.Y >= _game.Camera.Position.Y)
-                {
-                    distancia = 2000;
-                }
-                else
-                {
-                    distancia = (_game.Camera.LookAt.Y*2000)/_game.Camera.Position.Y;
+                    aux = (float) -_game.Camera.Position.Y / normal.Y;
                 }
 
-                var endPosition = distancia * normal + _game.Camera.Position;
-                cannonBalls.Add(new CannonBall(_game.Camera.Position + new Vector3(2*normal.X, -10, 2*normal.Z), endPosition,_game,cannonBall, this,null));
+                var endPosition = aux * normal + _game.Camera.Position;
+                cannonBalls.Add(new CannonBall(StartPositionCannon + Position, endPosition, _game, cannonBall, null, this));
+
             }
 
             if (!mouseState.RightButton.Equals(ButtonState.Pressed))
             {
                 CanShoot = true;
             }
-        }
-
-        private void ProcessKeyboard(float elapsedTime)
-        {
-            var keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                if (speed != 0)
-                {
-                    if (anguloDeGiro + giroBase >= MathF.PI * 2)
-                    {
-                        anguloDeGiro +=  giroBase - MathF.PI * 2;
-                    }
-                    else
-                    {
-                        anguloDeGiro -= giroBase;
-                    }
-                }
-            }
-
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                if (speed != 0){
-                    if (anguloDeGiro + giroBase < 0)
-                    {
-                        anguloDeGiro += - giroBase + MathF.PI * 2;
-                    }
-                    else
-                    {
-                        anguloDeGiro += giroBase;
-                    }
-                }
-            }
-
-            if (this.pressedAccelerator == false && keyboardState.IsKeyDown(Keys.W) && currentGear < 3)
-            {
-                currentGear++;
-                pressedAccelerator = true;
-                if (HandBrake) HandBrake = false;
-            }
-
-            if (this.pressedAccelerator == true && keyboardState.IsKeyUp(Keys.W))
-            {
-                pressedAccelerator = false;
-            }
-
-            if (this.pressedReverse == false && keyboardState.IsKeyDown(Keys.S) && currentGear > -2)
-            {
-                currentGear--;
-                pressedReverse = true;
-                if (HandBrake) HandBrake = false;
-            }
-
-            if (this.pressedReverse == true && keyboardState.IsKeyUp(Keys.S))
-            {
-                pressedReverse = false;
-            }
-
-            if (HandBrake == false && keyboardState.IsKeyDown(Keys.Space))
-            {
-                HandBrake = true;
-                currentGear = 0;
-            }
-        }
-
-        public void Shoted()
-        {
-            Life-=10;
         }
     }
 }

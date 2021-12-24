@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
 using Microsoft.Xna.Framework.Media;
+using TGC.MonoGame.TP.Objects.Water;
 
 namespace TGC.MonoGame.TP
 {
@@ -35,30 +38,23 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        public Model Model { get; set; }
-        public Model island { get; set; }
         
         public Model Rock { get; set; }
-        private Model Barco { get; set; }
-        private Vector3 BarcoPositionCenter = new Vector3(-200f, -10, 0);
-        public Model Barco2 { get; set; }
-        public Model Barco3 { get; set; }
-        private Model Projektil { get; set; }
+        private Vector3 BarcoPositionCenter = new Vector3(-1000f, -10, 0);
         
-        private Model Projektil2 { get; set; }
-        public Model Terreno2 { get; set; }
-        public Model islandTwo { get; set; }
         public Model[] islands { get; set; }
+        public islas[] Islas { get; set; }
 
         public Vector3[] posicionesIslas;
 
         public int cantIslas;
-        public Water ocean { get; set; }
         public Matrix World { get; set; }
         public Camera Camera { get; set; }
         
         public MainShip MainShip;
 
+        public List<EnemyShip> EnemyShips;
+        public int CountEnemyShip = 10;
         public float ElapsedTime = 0;
         private Song Song { get; set; }
         private string SongName { get; set; }
@@ -66,10 +62,27 @@ namespace TGC.MonoGame.TP
         public SpriteBatch spriteBatch ;
 
         public Texture2D Mira;
+        public Texture2D Life;
+        public Texture2D Life2;
         private GameRun gameRun;
         private Menu menu;
+        public Water2 terrain;
+        public SkyBox SkyBox;
+        public Effect basicEffect;
+        public Texture2D islasTexture;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
+        public Vector3 SunPosition = new Vector3(-200f, 15000, 100);
+        public Vector2 LimitSpaceGame = new Vector2(5000, 7000);
 
+        public Vector3 KAColor = new Vector3(0, 0, 0.4f);
+        //public Vector3 KDColor = new Vector3(0, 0, 0.2f);
+        public Vector3 KDColor = new Vector3(1, 1, 1);
+        public Vector3 KSColor = new Vector3(1, 1, 1);
+        public const int ShadowmapSize = 3048;
+        public RenderTarget2D ShadowMapRenderTarget;
+        public Matrix ViewSun;
+        public Matrix ProjectionSun;
+        //public Vector3 SunPosition = new Vector3(0f, 0, 1000000);
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -91,14 +104,33 @@ namespace TGC.MonoGame.TP
             World = Matrix.CreateRotationY(MathHelper.Pi);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 10, this );
+            EnemyShips = new List<EnemyShip>();
+            for (int eShip = 0; eShip < CountEnemyShip; eShip++)
+            {
+                EnemyShips.Add(new EnemyShip(new Vector3(600f * (Math.Abs(eShip/2)*2-1), 10f, eShip * 1300 -1300*CountEnemyShip/2), new Vector3(0,0,0),10,this));
+            }
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip, GameState == "START");
             gameRun = new GameRun(this);
             menu = new Menu(this);
-            posicionesIslas = new[] { new Vector3(-3000f, -60f, 200f) ,new Vector3(2000f,-60f,400f),new Vector3(1500f,-60f,200f), new Vector3(-4500f,-60f,-600f),new Vector3(-2000f,-60f,-1500f),
-                new Vector3(4000f,-60f,-1500f),new Vector3(500f,-60f,-3000f),new Vector3(0,-60f,-4000f), new Vector3 (-2000f,-60f,0)};
+            posicionesIslas = new[] { 
+                new Vector3(2000f, -200f, 0f) , //isla gr
+                new Vector3(-2000f, -200f, 0f) ,
+                new Vector3(0f, 0f, -2000f) ,
+                new Vector3(0f, -200f, 2000f) ,
+                new Vector3(0f, -200f, 0f) ,
+                new Vector3(-1500f, 0f, -4000f) ,
+                new Vector3(1500f, 0f, -4000f) , 
+                new Vector3(1500f, 0f, 4000f) , 
+                new Vector3(-1500f, 0f, 4000f) };
 
             cantIslas = posicionesIslas.Length;
-            
+            var FrontDirection = Vector3.Normalize(Vector3.Zero - SunPosition);
+            var RightDirection = Vector3.Normalize(Vector3.Cross(Vector3.Up, FrontDirection));
+            var UpDirection = Vector3.Cross(FrontDirection, RightDirection);
+            ViewSun = Matrix.CreateLookAt(SunPosition, SunPosition + FrontDirection, UpDirection);
+            var LightCameraNearPlaneDistance = 5f;
+            var LightCameraFarPlaneDistance = 3000f;
+            ProjectionSun = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2,1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance);
             base.Initialize();
         }
 
@@ -109,30 +141,40 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
+            terrain = new Water2(GraphicsDevice,  this);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             MainShip.LoadContent();
-            // Cargo el modelo del logo.
-            Barco2 = Content.Load<Model>(ContentFolder3D + "Barco2/Barco2");
-            Barco3 = Content.Load<Model>(ContentFolder3D + "Barco3");
+            for (int eShip = 0; eShip < CountEnemyShip; eShip++)
+            {
+                EnemyShips[eShip].LoadContent();
+            }
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
-            ocean = new Water(Content);
-            islands = new Model[cantIslas];
+            //islands = new Model[cantIslas];
             Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
+            Life = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida");
+            Life2 = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida 3");
+            //basicEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            islasTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+            Islas = new islas[cantIslas];
             for (int isla = 0; isla < cantIslas; isla++)
             {
-                islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
+                Islas[isla] = new islas(posicionesIslas[isla],this,"islands/isla" + (isla + 1),"Ship");
+                Islas[isla].LoadContent();
             }
 
 
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            //Music
             SongName = "Game";
             Song = Content.Load<Song>(ContentFolderMusic + SongName);
             MediaPlayer.IsRepeating = true;
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             base.LoadContent();
         }
 
@@ -144,7 +186,7 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            if (GameState == "START")
+            if (GameState == "START" || MainShip.Life <=0)
             {
                 if (MediaPlayer.State != MediaState.Playing )
                 {
@@ -177,10 +219,28 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            // Set the render target as our shadow map, we are drawing the depth into this texture
+            GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+            if (MainShip.Life <= 0)
+                GameState = "GAMEOVER";
+                menu.Draw(gameTime,"Retry","DepthMap" );
             if (GameState == "START")
-                menu.Draw(gameTime);
+                menu.Draw(gameTime,"Play", "DepthMap");
             if (GameState == "PLAY" || GameState == "RESUME")
-                gameRun.Draw(gameTime);
+                gameRun.Draw(gameTime, "DepthMap");
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+            if (MainShip.Life <= 0)
+                GameState = "GAMEOVER";
+                menu.Draw(gameTime,"Retry","ShadowMap" );
+            if (GameState == "START")
+                menu.Draw(gameTime,"Play", "ShadowMap");
+            if (GameState == "PLAY" || GameState == "RESUME")
+                gameRun.Draw(gameTime,"ShadowMap");
+
         }
 
         /// <summary>

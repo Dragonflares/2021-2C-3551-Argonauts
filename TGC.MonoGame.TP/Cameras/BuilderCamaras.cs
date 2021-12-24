@@ -19,11 +19,11 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultFarPlaneDistance = 200000000;
         //private static readonly Vector3 Position = new Vector3(-350, 50, 400);
         private Vector3 PositionBarco { get; set; }
-        private Vector3 CenterPosition = new Vector3(0, 42,62);
-        private Vector3 FrontPosition = new Vector3(0, 40,200);
+        private Vector3 CenterPosition = new Vector3(0, 242,62);
+        private Vector3 FrontPosition = new Vector3(0, 240,800);
         private static float Speed = 5;
         private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
-        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 10000, 0);
+        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 15000, 0);
         private List<Camera> Cameras { get; set; }
         private Camera CurrentCamera { get; set; }
         public MainShip MainShip { get; set; }
@@ -110,6 +110,35 @@ namespace TGC.MonoGame.Samples.Cameras
             LookAt = CurrentCamera.LookAt;
             View = CurrentCamera.View;
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);;
+        }
+
+        public override void SetPosition(Vector3 position)
+        {
+            if (CurrentCamera == Cameras[0])
+            {
+                CurrentCamera.SetPosition(position+new Vector3(0,CenterPosition.Y,0) + (CenterPosition.X+ CenterPosition.Z)* new Vector3((float)Math.Sin(MainShip.anguloDeGiro),0,(float)Math.Cos(MainShip.anguloDeGiro)));
+            }
+            else
+            {
+                if (CurrentCamera == Cameras[1])
+                {
+                    CurrentCamera.SetPosition(position+new Vector3(0,FrontPosition.Y,0)+(FrontPosition.X+FrontPosition.Z) * new Vector3((float)Math.Sin(MainShip.anguloDeGiro),0,(float)Math.Cos(MainShip.anguloDeGiro)));
+                }
+                else
+                {
+                    CurrentCamera.SetPosition(position);
+                }
+            }
+            
+        }
+
+        public override Matrix GetView()
+        {
+            return CurrentCamera.View;
+        }
+        public override Matrix GetProjection()
+        {
+            return CurrentCamera.Projection;
         }
     }
 }

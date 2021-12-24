@@ -13,7 +13,8 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class Water
     {
-        public const float WaterGrid = 5000f;
+        public const float WaterGrid = 4900f;
+        //public const float WaterGrid = 5000f;
         private Model Model { get; set; }
         private List<Matrix> WorldWaterMatrix{ get; set; }
         private Effect Effect { get; set; }
@@ -40,7 +41,7 @@ namespace TGC.MonoGame.TP
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
             }
-            texturaAgua = content.Load<Texture>(ContentFolderTextures + "Ocean");
+            texturaAgua = content.Load<Texture>(ContentFolderTextures + "Ocean2");
             WorldWaterMatrix = new List<Matrix>()
             {
                 Matrix.Identity,
@@ -64,6 +65,20 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["World"].SetValue(game.World * Matrix.CreateScale(50.0f) * Matrix.CreateTranslation(0, -60f, 0));
             Effect.Parameters["Time"]?.SetValue(time);
             Effect.Parameters["baseTexture"].SetValue(texturaAgua);
+            Effect.Parameters["foamTexture"]?.SetValue(texturaAgua);
+            Effect.Parameters["environmentMap"]?.SetValue(texturaAgua);
+            Effect.Parameters["normalTexture"]?.SetValue(texturaAgua);
+            Effect.Parameters["sunPosition"]?.SetValue(new Vector3(-200f, 10000, 500));
+            Effect.Parameters["cameraPosition"]?.SetValue(game.Camera.Position);
+            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Invert(Matrix.Transpose(game.World * Matrix.CreateScale(50.0f) * Matrix.CreateTranslation(0, -60f, 0))));
+            Effect.Parameters["KAmbient"]?.SetValue(0.4f);
+            Effect.Parameters["ambientColor"]?.SetValue(new Vector3(0,0,1));
+            Effect.Parameters["KDiffuse"]?.SetValue(0.2f);
+            Effect.Parameters["diffuseColor"]?.SetValue(new Vector3(0,0,1));
+            Effect.Parameters["KSpecular"]?.SetValue(0f);
+            Effect.Parameters["shininess"]?.SetValue(0f);
+            Effect.Parameters["KReflection"]?.SetValue(0.5f);
+            Effect.Parameters["KFoam"]?.SetValue(0f);
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
             foreach (var mesh in Model.Meshes)
@@ -73,8 +88,11 @@ namespace TGC.MonoGame.TP
                 {
                     Effect.Parameters["World"].SetValue(meshWorld * waterMatrix);
                     mesh.Draw();
+                    
                 }
+                
             }
+            
 
         }
     }

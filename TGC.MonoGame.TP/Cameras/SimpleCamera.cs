@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Objects;
 
 namespace TGC.MonoGame.Samples.Cameras
 {
@@ -135,8 +136,13 @@ namespace TGC.MonoGame.Samples.Cameras
             if (keyboardState.IsKeyDown(Keys.D))
                 Position -= RightDirection * time * Speed;*/
             LookAt = Position + FrontDirection;
-            
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
+        }
+
+        public override void SetPosition(Vector3 position)
+        {
+            Position.X = position.X;
+            Position.Z = position.Z;
         }
     }
 }
