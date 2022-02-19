@@ -106,6 +106,7 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Game.GraphicsDevice.RasterizerState = rasterizerState;
+            Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
             Game.SkyBox.Draw(View, Projection, new Vector3(0,-300,0));
             Game.GraphicsDevice.RasterizerState = originalRasterizerState;
             

@@ -98,7 +98,7 @@ namespace TGC.MonoGame.TP.Objects
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
         }
-        private void DrawShip()
+        private void DrawShip(String NameEffect)
         {
 
             Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
@@ -108,6 +108,7 @@ namespace TGC.MonoGame.TP.Objects
             
             var modelMeshesBaseTransforms = new Matrix[modelo.Bones.Count];
             modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            Effect.CurrentTechnique = Effect.Techniques[NameEffect];
             Effect.Parameters["KAmbient"]?.SetValue(0.1f);
             Effect.Parameters["KDiffuse"]?.SetValue(0.7f);
             Effect.Parameters["KSpecular"]?.SetValue(0.1f);
@@ -173,7 +174,7 @@ namespace TGC.MonoGame.TP.Objects
             Orientacion.M44 = 1;
             return Orientacion;
         }
-        public void Draw()
+        public void Draw(String nameEffect)
         {
             _game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.Default, RasterizerState.CullCounterClockwise);
@@ -188,7 +189,7 @@ namespace TGC.MonoGame.TP.Objects
             _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             _game.GraphicsDevice.BlendState = BlendState.Opaque;
-            DrawShip();
+            DrawShip(nameEffect);
             foreach (var cannon in cannonBalls)
             {
                 cannon.Draw();

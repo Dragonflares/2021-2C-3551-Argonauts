@@ -103,7 +103,8 @@ namespace TGC.MonoGame.Samples.Cameras
                 }
                 else
                 {
-                    CurrentCamera = Cameras[4];
+                    if (CurrentCamera != Cameras[5] || keyboardState.IsKeyDown(Keys.D6))
+                        CurrentCamera = Cameras[4];
                 }
             }
 

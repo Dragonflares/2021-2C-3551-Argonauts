@@ -40,7 +40,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         
         public Model Rock { get; set; }
-        private Vector3 BarcoPositionCenter = new Vector3(-1000f, -10, 0);
+        public Vector3 BarcoPositionCenter = new Vector3(-1000f, -10, 0);
         
         public Model[] islands { get; set; }
         public islas[] Islas { get; set; }
@@ -71,7 +71,8 @@ namespace TGC.MonoGame.TP
         public Effect basicEffect;
         public Texture2D islasTexture;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
-        public Vector3 SunPosition = new Vector3(-200f, 15000, 100);
+        public Vector3 SunPosition = new Vector3(-200f, 1000, 100);
+        public SunBox SunBox;
         public Vector2 LimitSpaceGame = new Vector2(5000, 7000);
 
         public Vector3 KAColor = new Vector3(0, 0, 0.4f);
@@ -95,8 +96,10 @@ namespace TGC.MonoGame.TP
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            Graphics.PreferredBackBufferWidth = 1280;
-            Graphics.PreferredBackBufferHeight = 720;
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            //Graphics.PreferredBackBufferWidth = 1280;
+            //Graphics.PreferredBackBufferHeight = 720;
             Graphics.ApplyChanges();
             // Seria hasta aca.
 
@@ -172,7 +175,9 @@ namespace TGC.MonoGame.TP
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            var sunBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SunBox");
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+            SunBox = new SunBox(skyBox, sunBoxEffect,100);
             ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             base.LoadContent();
@@ -186,6 +191,7 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            SunPosition = new Vector3(MathF.Cos(ElapsedTime) * 5000f, 2000f, MathF.Sin(ElapsedTime) * 5000f);
             if (GameState == "START" || MainShip.Life <=0)
             {
                 if (MediaPlayer.State != MediaState.Playing )
@@ -233,6 +239,7 @@ namespace TGC.MonoGame.TP
                 gameRun.Draw(gameTime, "DepthMap");
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+            SunBox.Draw(Camera.View, Camera.Projection, BarcoPositionCenter + new Vector3(0,1000,0));
             if (MainShip.Life <= 0)
                 GameState = "GAMEOVER";
                 menu.Draw(gameTime,"Retry","ShadowMap" );

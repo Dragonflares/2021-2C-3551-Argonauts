@@ -48,6 +48,7 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Game.GraphicsDevice.RasterizerState = rasterizerState;
+            Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
             Game.SkyBox.Draw(Matrix.CreateLookAt(new Vector3(0,-200,0), new Vector3(1,0,0), Vector3.Up), 
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
                     20000f), 
@@ -59,7 +60,7 @@ namespace TGC.MonoGame.TP
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
             Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, nameEffect);
-            Game.MainShip.Draw();
+            Game.MainShip.Draw(nameEffect);
             for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
             {
                 if (Game.EnemyShips[eShip].Life > 0)
