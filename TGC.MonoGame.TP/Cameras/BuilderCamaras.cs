@@ -51,7 +51,8 @@ namespace TGC.MonoGame.Samples.Cameras
                 new SimpleCamera(aspectRatio,PositionBarco+CenterPosition,Speed),
                 new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
                 new TargetCamera(aspectRatio, new Vector3(PositionBarco.X, PositionBarco.Y + 150, PositionBarco.Z - 250), PositionBarco, screenCenter, height, width),
-                new StaticCamera(aspectRatio, new Vector3(0,0,0), new Vector3(1,0,0),Vector3.Up) // unicamente para menu
+                new StaticCamera(aspectRatio, new Vector3(0,0,0), new Vector3(1,0,0),Vector3.Up), // unicamente para menu
+                new FreeCamera(aspectRatio, new Vector3(0,500,0), screenCenter)
             };
             CurrentCamera = Cameras[0];
             CanShoot = CurrentCamera.CanShoot;
@@ -61,43 +62,49 @@ namespace TGC.MonoGame.Samples.Cameras
         public override void Update(GameTime gameTime)
         {
             var keyboardState = Keyboard.GetState();
-            if (!Menu)
+            if (keyboardState.IsKeyDown(Keys.D5))
             {
-                
-                if (keyboardState.IsKeyDown(Keys.D1))
+                CurrentCamera = Cameras[5];
+            }
+            else{
+            if (!Menu)
                 {
-                    CurrentCamera = Cameras[0];
-                }
-                else
-                {
-                    if (keyboardState.IsKeyDown(Keys.D2))
+
+                    if (keyboardState.IsKeyDown(Keys.D1))
                     {
-                        CurrentCamera = Cameras[1];
+                        CurrentCamera = Cameras[0];
                     }
                     else
                     {
-                        if (keyboardState.IsKeyDown(Keys.D3))
+                        if (keyboardState.IsKeyDown(Keys.D2))
                         {
-                            CurrentCamera = Cameras[2];
+                            CurrentCamera = Cameras[1];
                         }
                         else
                         {
-                            if (keyboardState.IsKeyDown(Keys.D4))
+                            if (keyboardState.IsKeyDown(Keys.D3))
                             {
-                                CurrentCamera = Cameras[3];
+                                CurrentCamera = Cameras[2];
+                            }
+                            else
+                            {
+                                if (keyboardState.IsKeyDown(Keys.D4))
+                                {
+                                    CurrentCamera = Cameras[3];
+                                }
                             }
                         }
                     }
-                }
 
-                if (CurrentCamera == Cameras[4])
-                {
-                    CurrentCamera = Cameras[0];
+                    if (CurrentCamera == Cameras[4])
+                    {
+                        CurrentCamera = Cameras[0];
+                    }
                 }
-            }
-            else
-            {
-                CurrentCamera = Cameras[4];
+                else
+                {
+                    CurrentCamera = Cameras[4];
+                }
             }
 
             CurrentCamera.Update(gameTime);

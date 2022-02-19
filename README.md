@@ -14,6 +14,7 @@ El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacer
 - 2: SimpleCamera (Delante del barco)
 - 3: StaticCamera (Desde arriba)
 - 4: TargetCamera (Apuntando hacia el barco)
+- 5: FreeCamera (Puede moverse con AWSD o flechas y click derecho del mouse y arrastrando rota)
 
 ## Integrantes
 Chiara, Mazzarella
