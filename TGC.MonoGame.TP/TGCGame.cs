@@ -239,7 +239,6 @@ namespace TGC.MonoGame.TP
                 gameRun.Draw(gameTime, "DepthMap");
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
-            SunBox.Draw(Camera.View, Camera.Projection, BarcoPositionCenter + new Vector3(0,1000,0));
             if (MainShip.Life <= 0)
                 GameState = "GAMEOVER";
                 menu.Draw(gameTime,"Retry","ShadowMap" );

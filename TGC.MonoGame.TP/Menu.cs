@@ -101,31 +101,36 @@ namespace TGC.MonoGame.TP
 
         public void Draw(GameTime gameTime,String text, String NameEffect)
         {
-            Game.GraphicsDevice.Clear(Color.CornflowerBlue);
-            var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            Game.GraphicsDevice.RasterizerState = rasterizerState;
-            Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
-            Game.SkyBox.Draw(View, Projection, new Vector3(0,-300,0));
-            Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+            if (NameEffect != "DepthMap")
+            {
+                //554Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+                var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
+                var rasterizerState = new RasterizerState();
+                rasterizerState.CullMode = CullMode.None;
+                Game.GraphicsDevice.RasterizerState = rasterizerState;
+                Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
+                Game.SkyBox.Draw(View, Projection, new Vector3(0, -300, 0));
+                Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
+            }
             
-            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
-            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            spriteBatch.Draw(botonesCurrentPlay,
-                new Rectangle(250, 50,
-                    200, 100), Color.White);
-            spriteBatch.DrawString(font, text, new Vector2(285, 60), Color.White);
-            spriteBatch.Draw(botonesCurrentExit,
-                new Rectangle(800, 50,
-                    200, 100), Color.White);
-            spriteBatch.DrawString(font, "Exit", new Vector2(850, 60), Color.White);
-            spriteBatch.End();
-            Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            Game.GraphicsDevice.BlendState = BlendState.Opaque;
+            if (NameEffect != "DepthMap"){
+                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                spriteBatch.Draw(botonesCurrentPlay,
+                    new Rectangle(250, 50,
+                        200, 100), Color.White);
+                spriteBatch.DrawString(font, text, new Vector2(285, 60), Color.White);
+                spriteBatch.Draw(botonesCurrentExit,
+                    new Rectangle(800, 50,
+                        200, 100), Color.White);
+                spriteBatch.DrawString(font, "Exit", new Vector2(850, 60), Color.White);
+                spriteBatch.End();
+                Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+                Game.GraphicsDevice.BlendState = BlendState.Opaque;
+            }
         }
 
         public void Update(GameTime gameTime)

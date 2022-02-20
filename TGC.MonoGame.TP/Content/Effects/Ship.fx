@@ -50,6 +50,17 @@ struct VertexShaderOutput
     float4 ScreenSpacePosition : TEXCOORD3;
 };
 
+struct DepthPassVertexShaderInput
+{
+	float4 Position : POSITION0;
+};
+
+struct DepthPassVertexShaderOutput
+{
+	float4 Position : SV_POSITION;
+	float4 ScreenSpacePosition : TEXCOORD1;
+};
+
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
@@ -86,7 +97,14 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     return finalColor;
 
 }
-float4 MainPSDepth(VertexShaderOutput input) : COLOR0
+DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
+{
+	DepthPassVertexShaderOutput output;
+	output.Position = mul(input.Position, WorldViewProjection);
+	output.ScreenSpacePosition = mul(input.Position, WorldViewProjection);
+	return output;
+}
+float4 MainPSDepth(DepthPassVertexShaderOutput input) : COLOR0
 {
     float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;
     return float4(depth, depth, depth, 1.0);
@@ -95,7 +113,7 @@ technique DepthMap
 {
 	pass Pass0
 	{
-		VertexShader = compile VS_SHADERMODEL MainVS();
+		VertexShader = compile VS_SHADERMODEL DepthVS();
 		PixelShader = compile PS_SHADERMODEL MainPSDepth();
 	}
 }
