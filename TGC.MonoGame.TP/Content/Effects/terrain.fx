@@ -18,7 +18,7 @@ float3 cameraPosition;
 float3 sunPosition;
 float KAmbient;
 float3 ambientColor;
-
+float4x4 WorldViewProjection;
 float KDiffuse;
 float3 diffuseColor;
 
@@ -40,6 +40,16 @@ sampler_state
 	MipFilter = Point;
 	AddressU = Clamp;
 	AddressV = Clamp;
+};
+struct DepthPassVertexShaderInput
+{
+	float4 Position : POSITION0;
+};
+
+struct DepthPassVertexShaderOutput
+{
+	float4 Position : SV_POSITION;
+	float4 ScreenSpacePosition : TEXCOORD6;
 };
 
 texture baseTexture;
@@ -141,7 +151,7 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
     output.Position = mul(viewPosition, Projection);
     output.TextureCoordinates = input.TextureCoordinates;
-    output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
+    output.ScreenSpacePosition = mul(input.Position, WorldViewProjection);
     output.LightSpacePosition = mul(output.WorldPosition, LightViewProjection);
     return output;
 }
@@ -178,7 +188,7 @@ float4 calcularSombra(float3 colorCalculado, VS_OUTPUT input){
         }
 	
     float4 baseColor = float4(colorCalculado,1);
-    baseColor.rgb *= 0.5 - 0.5 * notInShadow;
+    baseColor.rgb *= 0.5 + 0.5 * notInShadow;
     //return baseColor;
     return float4(colorCalculado,1);
 }
@@ -234,8 +244,15 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
     return calcularSombra(baseColor, input);
     //return float4(baseColor,1);
 }
+DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
+{
+	DepthPassVertexShaderOutput output;
+	output.Position = mul(input.Position, WorldViewProjectionSun);
+	output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
+	return output;
+}
 
-float4 ps_RenderTerrainDepth(VS_OUTPUT input) : COLOR0
+float4 ps_RenderTerrainDepth(DepthPassVertexShaderOutput input) : COLOR0
 {
     float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;
     return float4(depth, depth, depth, 1.0);
@@ -244,7 +261,7 @@ technique DepthMap
 {
     pass Pass_0
     {
-        VertexShader = compile VS_SHADERMODEL vs_RenderTerrain();
+        VertexShader = compile VS_SHADERMODEL DepthVS();
         PixelShader = compile PS_SHADERMODEL ps_RenderTerrainDepth();
     }
 }

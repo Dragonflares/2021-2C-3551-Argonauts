@@ -111,9 +111,8 @@ namespace TGC.MonoGame.TP
                 Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
                 Game.SkyBox.Draw(View, Projection, new Vector3(0, -300, 0));
                 Game.GraphicsDevice.RasterizerState = originalRasterizerState;
-                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             }
-            
+            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             if (NameEffect != "DepthMap"){
                 spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
