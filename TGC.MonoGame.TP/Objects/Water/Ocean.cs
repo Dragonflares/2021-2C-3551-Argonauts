@@ -58,6 +58,7 @@ namespace TGC.MonoGame.TP.Objects.Water
             Effect.CurrentTechnique = Effect.Techniques[nameEffect];
             var graphicsDevice = Effect.GraphicsDevice;
             Effect.Parameters["WorldViewProjectionSun"]?.SetValue(World* Game.ViewSun * Game.ProjectionSun);
+            Effect.Parameters["WorldViewProjection"]?.SetValue(World* Game.Camera.View * Game.Camera.Projection);
             Effect.Parameters["shadowMapSize"]?.SetValue(Vector2.One * TGCGame.ShadowmapSize);
             Effect.Parameters["shadowMap"]?.SetValue(Game.ShadowMapRenderTarget);
             Effect.Parameters["LightViewProjection"]?.SetValue(Game.ViewSun * Game.ProjectionSun);
@@ -65,6 +66,10 @@ namespace TGC.MonoGame.TP.Objects.Water
             Effect.Parameters["View"]?.SetValue(View);
             Effect.Parameters["Projection"]?.SetValue(Projection);
             Effect.Parameters["Time"]?.SetValue(time);
+            Effect.Parameters["cameraPosition"]?.SetValue(Game.Camera.Position);
+            Effect.Parameters["sunPosition"]?.SetValue(Game.SunPosition);
+            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(World)));
+            Effect.Parameters["environmentMap"]?.SetValue(Game.EnvironmentMapRenderTarget);
             graphicsDevice.SetVertexBuffer(vbTerrain);
 
             //Render con shader

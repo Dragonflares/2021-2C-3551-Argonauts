@@ -9,6 +9,7 @@
 float2 shadowMapSize;
 float4x4 LightViewProjection;
 float4x4 WorldViewProjectionSun;
+float4x4 InverseTransposeWorld;
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
@@ -17,7 +18,7 @@ float3 cameraPosition;
 float3 sunPosition;
 float KAmbient;
 float3 ambientColor;
-
+float4x4 WorldViewProjection;
 float KDiffuse;
 float3 diffuseColor;
 
@@ -27,8 +28,8 @@ float shininess;
 
 float KReflection;
 float KFoam;
-static const float modulatedEpsilon = 0.000041200182749889791011810302734375;
-static const float maxEpsilon = 0.000023200045689009130001068115234375;
+static const float modulatedEpsilon = 0.000000000000041200182749889791011810302734375;
+static const float maxEpsilon = 0.00000000000000000000023200045689009130001068115234375;
 texture shadowMap;
 sampler2D shadowMapSampler =
 sampler_state
@@ -39,6 +40,16 @@ sampler_state
 	MipFilter = Point;
 	AddressU = Clamp;
 	AddressV = Clamp;
+};
+struct DepthPassVertexShaderInput
+{
+	float4 Position : POSITION0;
+};
+
+struct DepthPassVertexShaderOutput
+{
+	float4 Position : SV_POSITION;
+	float4 ScreenSpacePosition : TEXCOORD6;
 };
 
 texture baseTexture;
@@ -75,7 +86,7 @@ struct VS_INPUT
 {
     float4 Position : POSITION0;
     float2 TextureCoordinates : TEXCOORD0;
-    float4 Normal : NORMAL;
+    float3 Normal : NORMAL;
 };
 
 struct VS_OUTPUT
@@ -87,7 +98,15 @@ struct VS_OUTPUT
     float4 ScreenSpacePosition : TEXCOORD3;
     float4 LightSpacePosition : TEXCOORD4;
 };
-
+texture environmentMap;
+samplerCUBE environmentMapSampler = sampler_state
+{
+    Texture = (environmentMap);
+    MagFilter = Linear;
+    MinFilter = Linear;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
 float3 createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {
     float3 wave = float3(0, 0, 0);
 
@@ -104,7 +123,6 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
     VS_OUTPUT output;
     //input.Position.y +=10;
     float4 worldPosition = mul(input.Position, World);
-    
     float3 wave1 = createWave(4, 5, float2(0.5, 0.3), 40, 160, 3, 10, worldPosition);
     float3 wave2 = createWave(8, 5, float2(0.8, -0.4), 12, 120, 1.2, 20, worldPosition);
     float3 wave3 = createWave(4, 5, float2(0.3, 0.2), 2, 90, 5, 25, worldPosition);
@@ -113,9 +131,7 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
     float3 wave6 = createWave(4, 5, float2(-0.5, -0.3), 0.5, 8, 0.2, 4, worldPosition);
     float3 wave7 = createWave(8, 5, float2(-0.8, 0.4), 0.3, 5, 0.3, 6, worldPosition);
     worldPosition.xyz += (wave1 + wave2 + wave3 + wave4 + wave5 + wave6 + wave7) / 7;
-    output.WorldPosition = worldPosition;
     float4 viewPosition = mul(worldPosition, View);
-    output.Position = mul(viewPosition, Projection);
     
     float EPSILON = 0.001;
         float3 dxWave1 = createWave(4, 5, float2(0.5, 0.3), 40, 160, 3, 10, float4(worldPosition.x + EPSILON, worldPosition.yz, 1));
@@ -139,10 +155,11 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
         float3 waterTangent1 = normalize(float3(1, normalVector.x, 0));
         float3 waterTangent2 = normalize(float3(0, normalVector.z, 1));
         input.Normal.xyz = normalize(cross(waterTangent2, waterTangent1));
-
-    output.Normal = input.Normal;
+    output.WorldPosition = worldPosition;
+    output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
+    output.Position = mul(viewPosition, Projection);
     output.TextureCoordinates = input.TextureCoordinates;
-    output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
+    output.ScreenSpacePosition = mul(input.Position, WorldViewProjection);
     output.LightSpacePosition = mul(output.WorldPosition, LightViewProjection);
     return output;
 }
@@ -180,10 +197,26 @@ float4 calcularSombra(float3 colorCalculado, VS_OUTPUT input){
 	
     float4 baseColor = float4(colorCalculado,1);
     baseColor.rgb *= 0.5 + 0.5 * notInShadow;
-    return baseColor;
-    //return float4(colorCalculado,1);
+    //return baseColor;
+    return float4(colorCalculado,1);
 }
+float4 calcularRefleccion(float3 colorCalculado, VS_OUTPUT input){
+    //Normalizar vectores
+	float3 normal = normalize(input.Normal.xyz);
+    
+	
+    // Not part of the mapping, just adjusting color
+    float3 baseColor = lerp(colorCalculado, float3(1, 1, 1), step(length(colorCalculado), 0.01));
+    
+	//Obtener texel de CubeMap
+	float3 view = normalize(cameraPosition.xyz - input.WorldPosition.xyz);
+	float3 reflection = reflect(view, normal);
+	float3 reflectionColor = texCUBE(environmentMapSampler, reflection).rgb;
 
+    float fresnel = saturate((1.0 - dot(normal, view)));
+
+    return float4(lerp(baseColor, reflectionColor, fresnel*0.25f), 1);
+ }
 float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
 {
     float alturaY = clamp(sunPosition.y / 1500, 0.5, 1);
@@ -232,11 +265,19 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
      //return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
      //return float4(baseColor,1);
     // return tex2D(colorMap, input.TextureCoordinates);
-    return calcularSombra(baseColor, input);
+    float4 color_with_shadow = calcularSombra(baseColor, input);
+    return calcularRefleccion(color_with_shadow, input);
     //return float4(baseColor,1);
 }
+DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
+{
+	DepthPassVertexShaderOutput output;
+	output.Position = mul(input.Position, WorldViewProjectionSun);
+	output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
+	return output;
+}
 
-float4 ps_RenderTerrainDepth(VS_OUTPUT input) : COLOR0
+float4 ps_RenderTerrainDepth(DepthPassVertexShaderOutput input) : COLOR0
 {
     float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;
     return float4(depth, depth, depth, 1.0);
@@ -245,7 +286,7 @@ technique DepthMap
 {
     pass Pass_0
     {
-        VertexShader = compile VS_SHADERMODEL vs_RenderTerrain();
+        VertexShader = compile VS_SHADERMODEL DepthVS();
         PixelShader = compile PS_SHADERMODEL ps_RenderTerrainDepth();
     }
 }

@@ -40,55 +40,70 @@ namespace TGC.MonoGame.TP
 
         public void Draw(GameTime gameTime, String nameEffect)
         {
-            
-            Game.GraphicsDevice.Clear(Color.CornflowerBlue);
-            
-            
-            var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            Game.GraphicsDevice.RasterizerState = rasterizerState;
-            Game.SkyBox.Draw(Matrix.CreateLookAt(new Vector3(0,-200,0), new Vector3(1,0,0), Vector3.Up), 
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
-                    20000f), 
-                Vector3.UnitX * 20 +new Vector3(0,-200,0));
-            Game.GraphicsDevice.RasterizerState = originalRasterizerState;
-            
-            
-            
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            //Game.ocean.Draw(gameTime, Game.Camera.View, Game.Camera.Projection, Game);
-            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, nameEffect);
-            Game.MainShip.Draw();
-            for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
+            if (nameEffect == "ShadowMap")
             {
-                if (Game.EnemyShips[eShip].Life > 0)
+                Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+                var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
+                var rasterizerState = new RasterizerState();
+                rasterizerState.CullMode = CullMode.None;
+                Game.GraphicsDevice.RasterizerState = rasterizerState;
+                Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
+                Game.SkyBox.Draw(Matrix.CreateLookAt(new Vector3(0, -200, 0), new Vector3(1, 0, 0), Vector3.Up),
+                    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio,
+                        0.1f,
+                        20000f),
+                    Vector3.UnitX * 20 + new Vector3(0, -200, 0));
+                Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, nameEffect);
+            }
+            if (nameEffect == "EnviromentMap")
+            {
+                var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
+                var rasterizerState = new RasterizerState();
+                rasterizerState.CullMode = CullMode.None;
+                Game.GraphicsDevice.RasterizerState = rasterizerState;
+                Game.SkyBox.Draw(View, Projection, new Vector3(0, -300, 0));
+                Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+            }
+
+            if (nameEffect != "EnviromentMap")
+            {
+                Game.MainShip.Draw(nameEffect);
+                for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
                 {
-                    Game.EnemyShips[eShip].Draw();
+                    if (Game.EnemyShips[eShip].Life > 0)
+                    {
+                        Game.EnemyShips[eShip].Draw();
+                    }
+                }
+
+                for (int isla = 0; isla < Game.cantIslas; isla++)
+                {
+                    Game.Islas[isla].Draw();
+                }
+
+                if (Game.Camera.CanShoot)
+                {
+                    if (nameEffect != "DepthMap")
+                    {
+                        Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend,
+                            SamplerState.PointClamp,
+                            DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                        Game.spriteBatch.Draw(Game.Mira,
+                            new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 400,
+                                Game.GraphicsDevice.Viewport.Height / 2 - 300,
+                                800, 600), Color.White);
+                        Game.spriteBatch.End();
+                        Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                        Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+                        Game.GraphicsDevice.BlendState = BlendState.Opaque;
+                    }
                 }
             }
 
-            for (int isla = 0; isla < Game.cantIslas; isla++)
-            {
-                Game.Islas[isla].Draw();
-            }
             
-            if (Game.Camera.CanShoot)
-            {
-                if (nameEffect != "DepthMap")
-                {
-                    Game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
-                        DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    Game.spriteBatch.Draw(Game.Mira,
-                        new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 400,
-                            Game.GraphicsDevice.Viewport.Height / 2 - 300,
-                            800, 600), Color.White);
-                    Game.spriteBatch.End();
-                    Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-                    Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-                    Game.GraphicsDevice.BlendState = BlendState.Opaque;
-                }
-            }
+            
             
             
         }
