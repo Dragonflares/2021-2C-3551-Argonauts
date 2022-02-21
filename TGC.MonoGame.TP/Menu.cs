@@ -101,7 +101,7 @@ namespace TGC.MonoGame.TP
 
         public void Draw(GameTime gameTime,String text, String NameEffect)
         {
-            if (NameEffect != "DepthMap")
+            if (NameEffect == "ShadowMap")
             {
                 //554Game.GraphicsDevice.Clear(Color.CornflowerBlue);
                 var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
@@ -111,10 +111,23 @@ namespace TGC.MonoGame.TP
                 Game.SunBox.Draw(Game.Camera.View, Game.Camera.Projection, Game.SunPosition);
                 Game.SkyBox.Draw(View, Projection, new Vector3(0, -300, 0));
                 Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             }
-            Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
-            DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
-            if (NameEffect != "DepthMap"){
+            if (NameEffect == "EnviromentMap")
+            {
+                //554Game.GraphicsDevice.Clear(Color.CornflowerBlue);
+                var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
+                var rasterizerState = new RasterizerState();
+                rasterizerState.CullMode = CullMode.None;
+                Game.GraphicsDevice.RasterizerState = rasterizerState;
+                Game.SkyBox.Draw(View, Projection, new Vector3(0, -300, 0));
+                Game.GraphicsDevice.RasterizerState = originalRasterizerState;
+            }
+            if (NameEffect != "EnviromentMap")
+            {
+                DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
+            }
+            if (NameEffect == "ShadowMap"){
                 spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.Default, RasterizerState.CullCounterClockwise);
                 spriteBatch.Draw(botonesCurrentPlay,

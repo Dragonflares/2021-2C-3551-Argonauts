@@ -60,7 +60,7 @@ namespace TGC.MonoGame.TP
         private string SongName { get; set; }
         
         public SpriteBatch spriteBatch ;
-
+        private const int EnvironmentmapSize = 2048;
         public Texture2D Mira;
         public Texture2D Life;
         public Texture2D Life2;
@@ -83,6 +83,9 @@ namespace TGC.MonoGame.TP
         public RenderTarget2D ShadowMapRenderTarget;
         public Matrix ViewSun;
         public Matrix ProjectionSun;
+        private StaticCamera CubeMapCamera { get; set; }
+
+        public RenderTargetCube EnvironmentMapRenderTarget { get; set; }
         //public Vector3 SunPosition = new Vector3(0f, 0, 1000000);
 
         /// <summary>
@@ -134,6 +137,8 @@ namespace TGC.MonoGame.TP
             var LightCameraNearPlaneDistance = 5f;
             var LightCameraFarPlaneDistance = 3000f;
             ProjectionSun = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2,1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance);
+            CubeMapCamera = new StaticCamera(1f, new Vector3(0,0,0), Vector3.UnitX, Vector3.Up);
+            CubeMapCamera.BuildProjection(1f, 1f, 3000f, MathHelper.PiOver2);
             base.Initialize();
         }
 
@@ -180,6 +185,8 @@ namespace TGC.MonoGame.TP
             SunBox = new SunBox(skyBox, sunBoxEffect,100);
             ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+            EnvironmentMapRenderTarget = new RenderTargetCube(GraphicsDevice, EnvironmentmapSize, false,
+                SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             base.LoadContent();
         }
 
@@ -225,7 +232,7 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-
+            #region Shadow Map
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             // Set the render target as our shadow map, we are drawing the depth into this texture
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
@@ -237,6 +244,29 @@ namespace TGC.MonoGame.TP
                 menu.Draw(gameTime,"Play", "DepthMap");
             if (GameState == "PLAY" || GameState == "RESUME")
                 gameRun.Draw(gameTime, "DepthMap");
+            #endregion 
+            #region Enviroment Map
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            for (var face = CubeMapFace.PositiveX; face <= CubeMapFace.NegativeZ; face++)
+            {
+                // Set the render target as our cubemap face, we are drawing the scene in this texture
+                GraphicsDevice.SetRenderTarget(EnvironmentMapRenderTarget, face);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+
+                SetCubemapCameraForOrientation(face);
+                CubeMapCamera.BuildView();
+
+                // Draw our scene. Do not draw our tank as it would be occluded by itself 
+                // (if it has backface culling on)
+                if (MainShip.Life <= 0)
+                    GameState = "GAMEOVER";
+                menu.Draw(gameTime,"Retry","EnviromentMap" );
+                if (GameState == "START")
+                    menu.Draw(gameTime,"Play", "EnviromentMap");
+                if (GameState == "PLAY" || GameState == "RESUME")
+                    gameRun.Draw(gameTime,"EnviromentMap");
+            }
+            #endregion 
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             if (MainShip.Life <= 0)
@@ -248,7 +278,42 @@ namespace TGC.MonoGame.TP
                 gameRun.Draw(gameTime,"ShadowMap");
 
         }
+        private void SetCubemapCameraForOrientation(CubeMapFace face)
+        {
+            switch (face)
+            {
+                default:
+                case CubeMapFace.PositiveX:
+                    CubeMapCamera.FrontDirection = -Vector3.UnitX;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
 
+                case CubeMapFace.NegativeX:
+                    CubeMapCamera.FrontDirection = Vector3.UnitX;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+
+                case CubeMapFace.PositiveY:
+                    CubeMapCamera.FrontDirection = Vector3.Down;
+                    CubeMapCamera.UpDirection = Vector3.UnitZ;
+                    break;
+
+                case CubeMapFace.NegativeY:
+                    CubeMapCamera.FrontDirection = Vector3.Up;
+                    CubeMapCamera.UpDirection = -Vector3.UnitZ;
+                    break;
+
+                case CubeMapFace.PositiveZ:
+                    CubeMapCamera.FrontDirection = -Vector3.UnitZ;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+
+                case CubeMapFace.NegativeZ:
+                    CubeMapCamera.FrontDirection = Vector3.UnitZ;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+            }
+        }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
         /// </summary>

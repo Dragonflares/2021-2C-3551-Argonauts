@@ -69,6 +69,7 @@ namespace TGC.MonoGame.TP.Objects.Water
             Effect.Parameters["cameraPosition"]?.SetValue(Game.Camera.Position);
             Effect.Parameters["sunPosition"]?.SetValue(Game.SunPosition);
             Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(World)));
+            Effect.Parameters["environmentMap"]?.SetValue(Game.EnvironmentMapRenderTarget);
             graphicsDevice.SetVertexBuffer(vbTerrain);
 
             //Render con shader

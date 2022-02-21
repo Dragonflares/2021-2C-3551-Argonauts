@@ -98,7 +98,15 @@ struct VS_OUTPUT
     float4 ScreenSpacePosition : TEXCOORD3;
     float4 LightSpacePosition : TEXCOORD4;
 };
-
+texture environmentMap;
+samplerCUBE environmentMapSampler = sampler_state
+{
+    Texture = (environmentMap);
+    MagFilter = Linear;
+    MinFilter = Linear;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
 float3 createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {
     float3 wave = float3(0, 0, 0);
 
@@ -192,7 +200,23 @@ float4 calcularSombra(float3 colorCalculado, VS_OUTPUT input){
     //return baseColor;
     return float4(colorCalculado,1);
 }
+float4 calcularRefleccion(float3 colorCalculado, VS_OUTPUT input){
+    //Normalizar vectores
+	float3 normal = normalize(input.Normal.xyz);
+    
+	
+    // Not part of the mapping, just adjusting color
+    float3 baseColor = lerp(colorCalculado, float3(1, 1, 1), step(length(colorCalculado), 0.01));
+    
+	//Obtener texel de CubeMap
+	float3 view = normalize(cameraPosition.xyz - input.WorldPosition.xyz);
+	float3 reflection = reflect(view, normal);
+	float3 reflectionColor = texCUBE(environmentMapSampler, reflection).rgb;
 
+    float fresnel = saturate((1.0 - dot(normal, view)));
+
+    return float4(lerp(baseColor, reflectionColor, fresnel*0.25f), 1);
+ }
 float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
 {
     float alturaY = clamp(sunPosition.y / 1500, 0.5, 1);
@@ -241,7 +265,8 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
      //return float4(finalColor.rgb, clamp((1 - foamColor.r), 0.95, 1));
      //return float4(baseColor,1);
     // return tex2D(colorMap, input.TextureCoordinates);
-    return calcularSombra(baseColor, input);
+    float4 color_with_shadow = calcularSombra(baseColor, input);
+    return calcularRefleccion(color_with_shadow, input);
     //return float4(baseColor,1);
 }
 DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
