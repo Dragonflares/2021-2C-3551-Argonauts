@@ -115,7 +115,6 @@ namespace TGC.MonoGame.TP
             }
             if (NameEffect == "EnviromentMap")
             {
-                //554Game.GraphicsDevice.Clear(Color.CornflowerBlue);
                 var originalRasterizerState = Game.GraphicsDevice.RasterizerState;
                 var rasterizerState = new RasterizerState();
                 rasterizerState.CullMode = CullMode.None;
