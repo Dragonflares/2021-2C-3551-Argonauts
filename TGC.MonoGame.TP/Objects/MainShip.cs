@@ -76,6 +76,27 @@ namespace TGC.MonoGame.TP.Objects
             initialScale = 0.03f;
         }
 
+        public void clearVariable(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed)
+        {
+            speed = 0;
+            Position = initialPosition;
+            PositionAnterior = Position;
+            orientacion = currentOrientation;
+            maxspeed = MaxSpeed;
+            maxacceleration = 0.1f;
+            anguloDeGiro = 0f;
+            anguloInicial = (float) (Math.PI/2);
+            giroBase = 0.003f;
+            pressedAccelerator = false;
+            currentGear = 0;
+            HandBrake = false;
+            pressedReverse = false;
+            ModelName = "Barco";
+            SoundShotName = "Shot";
+            initialScale = 0.03f;
+            Life = 100;
+        }
+
         public void LoadContent()
         {
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
@@ -418,6 +439,8 @@ namespace TGC.MonoGame.TP.Objects
         public void Shoted()
         {
             Life-=10;
+            if (Life<=0)
+                Position.Y = -1000000000000;
         }
     }
 }

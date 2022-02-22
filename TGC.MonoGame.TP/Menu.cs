@@ -169,6 +169,7 @@ namespace TGC.MonoGame.TP
                 {
                     MediaPlayer.Stop();
                     soundButtom.Play();
+                    Game.CleanAll();
                     Game.GameState = "PLAY";
                     Game.Camera.Menu = false;
                 }
