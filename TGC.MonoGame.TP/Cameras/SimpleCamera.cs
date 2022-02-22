@@ -81,16 +81,16 @@ namespace TGC.MonoGame.Samples.Cameras
             var turn = 0f;
 
             if (keyboardState.IsKeyDown(Keys.Up))
-                pitch += time * 0.1f;
+                pitch += time * Speed;
 
             if (keyboardState.IsKeyDown(Keys.Down))
-                pitch -= time * 0.1f;
+                pitch -= time * Speed;
 
             if (keyboardState.IsKeyDown(Keys.Left))
-                turn += time * 0.1f;
+                turn += time * Speed;
 
             if (keyboardState.IsKeyDown(Keys.Right))
-                turn -= time * 0.1f;
+                turn -= time * Speed;
 
             RightDirection = Vector3.Cross(DefaultWorldUpVector, FrontDirection);
             var flatFront = Vector3.Cross(RightDirection, DefaultWorldUpVector);
@@ -105,36 +105,6 @@ namespace TGC.MonoGame.Samples.Cameras
             
             //---------------------Agrgear el Zoom
             Mouse.SetCursor(MouseCursor.Crosshair);
-            //Mouse.SetPosition(0,0);
-            /*
-            var mouseState = Mouse.GetState();
-            if (mouseState.RightButton.Equals(ButtonState.Pressed))
-            {
-                if (Position < 2*(FrontDirection *100))
-                {
-
-                    Position += FrontDirection * 100;
-                    CountZoom += 1;
-                }
-                else
-                {
-                    Position -= (FrontDirection * 100)*2;
-                    CountZoom = 0;
-                }
-                // Check for input to move the camera around.
-            }*---------------------Agrgear el Zoom
-            */
-            /*if (keyboardState.IsKeyDown(Keys.W))
-                Position += FrontDirection * time * Speed;
-
-            if (keyboardState.IsKeyDown(Keys.S))
-                Position -= FrontDirection * time * Speed;
-
-            if (keyboardState.IsKeyDown(Keys.A))
-                Position += RightDirection * time * Speed;
-
-            if (keyboardState.IsKeyDown(Keys.D))
-                Position -= RightDirection * time * Speed;*/
             LookAt = Position + FrontDirection;
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
         }

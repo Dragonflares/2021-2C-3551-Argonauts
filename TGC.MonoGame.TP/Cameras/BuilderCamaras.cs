@@ -21,7 +21,7 @@ namespace TGC.MonoGame.Samples.Cameras
         private Vector3 PositionBarco { get; set; }
         private Vector3 CenterPosition = new Vector3(0, 242,62);
         private Vector3 FrontPosition = new Vector3(0, 240,800);
-        private static float Speed = 5;
+        private static float Speed = 1;
         private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
         private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 15000, 0);
         private List<Camera> Cameras { get; set; }
@@ -108,16 +108,16 @@ namespace TGC.MonoGame.Samples.Cameras
                 }
             }
 
-            CurrentCamera.Update(gameTime);
-            Cameras[0].Position = MainShip.Position + CenterPosition;
-            Cameras[1].Position = MainShip.Position + FrontPosition;
+            Cameras[0].Position = MainShip.Position + (float)60*new Vector3(MathF.Sin(MainShip.anguloDeGiro), 4,MathF.Cos(MainShip.anguloDeGiro));
+            Cameras[1].Position = MainShip.Position + (float)800*new Vector3(MathF.Sin((float) MainShip.anguloDeGiro), (float)0.25,MathF.Cos(MainShip.anguloDeGiro));
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
             Cameras[3].SetPosition(MainShip.Position);
             CanShoot = CurrentCamera.CanShoot;
             Position = CurrentCamera.Position;
             LookAt = CurrentCamera.LookAt;
             View = CurrentCamera.View;
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);;
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);
+            CurrentCamera.Update(gameTime);
         }
 
         public override void SetPosition(Vector3 position)
