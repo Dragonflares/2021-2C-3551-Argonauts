@@ -39,7 +39,7 @@ namespace TGC.MonoGame.TP.Objects
 
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
-        public int Life = 50;
+        public int Life = 100;
         private SpriteFont SpriteFont;
         private float initialScale;
         private float Kspecular;
@@ -87,6 +87,23 @@ namespace TGC.MonoGame.TP.Objects
             SoundShotName = "Shot";
             _game = game;
             SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
+        }
+
+        public void clearVariable(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed)
+        {
+            speed = 0;
+            Position = initialPosition;
+            PositionAnterior = Position;
+            orientacion = currentOrientation;
+            maxspeed = MaxSpeed;
+            maxacceleration = 0.1f;
+            anguloDeGiro = 0f;
+            giroBase = 0.003f;
+            pressedAccelerator = false;
+            currentGear = 0;
+            HandBrake = false;
+            pressedReverse = false;
+            Life = 100;
         }
 
         public void LoadContent()
@@ -210,6 +227,8 @@ namespace TGC.MonoGame.TP.Objects
         public void Shoted()
         {
             Life-=10;
+            if (Life<=0)
+            Position.Y = -1000000000000;
         }
         public void Update(GameTime gameTime)
         {

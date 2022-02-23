@@ -226,6 +226,16 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
+        public void CleanAll()
+        {
+            MainShip.clearVariable(BarcoPositionCenter, new Vector3(0,0,0), 10 );
+            for (int eShip = 0; eShip < CountEnemyShip; eShip++)
+            {
+                EnemyShips[eShip].clearVariable(new Vector3(600f * (Math.Abs(eShip / 2) * 2 - 1), 10f, eShip * 1300 - 1300 * CountEnemyShip / 2),
+                    new Vector3(0, 0, 0), 10);
+            }
+        }
+
         /// <summary>
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aqui el codigo referido al renderizado.
