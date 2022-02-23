@@ -91,7 +91,7 @@ namespace TGC.MonoGame.TP.Objects
             currentGear = 0;
             HandBrake = false;
             pressedReverse = false;
-            ModelName = "Barco";
+            ModelName = "A/Ship";
             SoundShotName = "Shot";
             initialScale = 0.03f;
             Life = 100;
@@ -103,7 +103,7 @@ namespace TGC.MonoGame.TP.Objects
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
             Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
-            TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "BarcoPrincipal2");
+            TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "TEST1");
             foreach (var modelMesh in modelo.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;

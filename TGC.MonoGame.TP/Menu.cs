@@ -6,6 +6,7 @@ using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using TGC.MonoGame.TP.Objects.Water;
 
 namespace TGC.MonoGame.TP
@@ -38,10 +39,10 @@ namespace TGC.MonoGame.TP
         public Menu(TGCGame game)
         {
             Game = game;
-            Barco = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "Barco");
+            Barco = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "A/Ship");
             botonesOff = Game.Content.Load<Texture2D>("Textures/" + "ButtonOff");
             botonesOn = Game.Content.Load<Texture2D>("Textures/" + "ButtonOn");
-            TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "BarcoPrincipal2");
+            TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/staff1_DefaultMaterial_BaseColor");
             botonesCurrentPlay = botonesOff;
             botonesCurrentExit = botonesOff;
             font = Game.Content.Load<SpriteFont>("SpriteFonts/Text");
@@ -85,6 +86,18 @@ namespace TGC.MonoGame.TP
             foreach (var modelMesh in Barco.Meshes)
             {
                 // We set the main matrices for each mesh to draw
+                try
+                {
+                    TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                               modelMesh.Name +
+                                                               "_DefaultMaterial_BaseColor");
+                    Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
+                }
+                catch (ContentLoadException e)
+                {
+                    
+                }
+
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
                 Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.ViewSun*Game.ProjectionSun);
                 // World is used to transform from model space to world space
