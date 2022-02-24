@@ -31,6 +31,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/ShipNormalMap.fx
 
+#begin Effects/ShipPBR.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ShipPBR.fx
+
 #begin Effects/SkyBox.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -224,6 +230,18 @@
 /processorParam:TextureFormat=Color
 /build:Models/A/textures/15cm_SKC34_09__DefaultMaterial_BaseColor.png
 
+#begin Models/A/textures/15cm_SKC34_09_DefaultMaterial_Metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/A/textures/15cm_SKC34_09_DefaultMaterial_Metallic.png
+
 #begin Models/A/textures/15cm_SKC34_09_DefaultMaterial_Normal.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -392,6 +410,18 @@
 /processorParam:TextureFormat=Color
 /build:Models/A/textures/38 cm SKC34 B_DefaultMaterial_BaseColor.png
 
+#begin Models/A/textures/38 cm SKC34 B_DefaultMaterial_Metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/A/textures/38 cm SKC34 B_DefaultMaterial_Metallic.png
+
 #begin Models/A/textures/38 cm SKC34 B_DefaultMaterial_Normal.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -463,6 +493,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/A/textures/38cm_SKC34_08_DefaultMaterial_BaseColor.png
+
+#begin Models/A/textures/38cm_SKC34_08_DefaultMaterial_Metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/A/textures/38cm_SKC34_08_DefaultMaterial_Metallic.png
 
 #begin Models/A/textures/38cm_SKC34_08_DefaultMaterial_Normal.png
 /importer:TextureImporter
@@ -668,6 +710,18 @@
 /processorParam:TextureFormat=Color
 /build:Models/A/textures/Rangefinders_2_20mm_Flak_Veirling_BaseColo.png
 
+#begin Models/A/textures/Rangefinders_2_20mm_Flak_Veirling_DefaultMaterial_Metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/A/textures/Rangefinders_2_20mm_Flak_Veirling_DefaultMaterial_Metallic.png
+
 #begin Models/A/textures/Rangefinders_2_20mm_Flak_Veirling_Metallic.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -739,6 +793,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/A/textures/staff2_20mm_Flak_Veirling_BaseColor.png
+
+#begin Models/A/textures/staff2_20mm_Flak_Veirling_DefaultMaterial_Metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/A/textures/staff2_20mm_Flak_Veirling_DefaultMaterial_Metallic.png
 
 #begin Models/A/textures/staff2_20mm_Flak_Veirling_Metallic.png
 /importer:TextureImporter
@@ -979,6 +1045,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/A/textures/superstructure_4_20mm_Flak_Veirling_BaseCo.png
+
+#begin Models/A/textures/superstructure_4_20mm_Flak_Veirling_DefaultMaterial_Metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/A/textures/superstructure_4_20mm_Flak_Veirling_DefaultMaterial_Metallic.png
 
 #begin Models/A/textures/superstructure_4_20mm_Flak_Veirling_DefaultMaterial_Normal.png
 /importer:TextureImporter

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -54,7 +55,7 @@ namespace TGC.MonoGame.TP
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
                     8000f);
-            Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "ShipNormalMap");
+            Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "ShipPBR");
             foreach (var modelMesh in Barco.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
@@ -92,17 +93,15 @@ namespace TGC.MonoGame.TP
                                                                modelMesh.Name +
                                                                "_DefaultMaterial_BaseColor");
                     Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
-                }
-                catch (ContentLoadException e) { }
-                try
-                {
                     TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
                                                                modelMesh.Name +
                                                                "_DefaultMaterial_Normal");
                     Effect.Parameters["NormalTexture"]?.SetValue(TextureShip);
-                }
-                catch (ContentLoadException e) { }
-
+                    TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                               modelMesh.Name +
+                                                               "_DefaultMaterial_Metallic");
+                    Effect.Parameters["metallicTexture"]?.SetValue(TextureShip);
+                }catch (ContentLoadException e) { }
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
                 Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.ViewSun*Game.ProjectionSun);
                 // World is used to transform from model space to world space
