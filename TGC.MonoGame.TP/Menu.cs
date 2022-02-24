@@ -54,7 +54,7 @@ namespace TGC.MonoGame.TP
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
                     8000f);
-            Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
+            Effect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "ShipNormalMap");
             foreach (var modelMesh in Barco.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
@@ -93,10 +93,15 @@ namespace TGC.MonoGame.TP
                                                                "_DefaultMaterial_BaseColor");
                     Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
                 }
-                catch (ContentLoadException e)
+                catch (ContentLoadException e) { }
+                try
                 {
-                    
+                    TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                               modelMesh.Name +
+                                                               "_DefaultMaterial_Normal");
+                    Effect.Parameters["NormalTexture"]?.SetValue(TextureShip);
                 }
+                catch (ContentLoadException e) { }
 
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
                 Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.ViewSun*Game.ProjectionSun);
