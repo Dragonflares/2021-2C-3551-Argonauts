@@ -133,7 +133,7 @@ namespace TGC.MonoGame.TP.Objects
             
             
         }
-        private void DrawShip()
+        private void DrawShip(String NameEffect)
         {
 
             Position.Y = _game.terrain.Height(Position.X, Position.Z) + 10;
@@ -143,6 +143,7 @@ namespace TGC.MonoGame.TP.Objects
             
             var modelMeshesBaseTransforms = new Matrix[modelo.Bones.Count];
             modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            Effect.CurrentTechnique = Effect.Techniques[NameEffect];
             Effect.Parameters["baseTexture"]?.SetValue(texture);
             Effect.Parameters["KAmbient"]?.SetValue(1f);
             Effect.Parameters["KDiffuse"]?.SetValue(1f);
@@ -209,12 +210,12 @@ namespace TGC.MonoGame.TP.Objects
             return Orientacion;
         }
 
-        public void Draw()
+        public void Draw(String NameEffec)
         {
             //modelo.Draw(
             //    Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(initialScale) *
             //    Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
-            DrawShip();
+            DrawShip(NameEffec);
             foreach (var cannon in cannonBalls)
             {
                 if (cannon.Active)

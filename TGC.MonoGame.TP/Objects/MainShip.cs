@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using static TGC.MonoGame.TP.Objects.CannonBall;
 
 namespace TGC.MonoGame.TP.Objects
@@ -69,11 +70,11 @@ namespace TGC.MonoGame.TP.Objects
             currentGear = 0;
             HandBrake = false;
             pressedReverse = false;
-            ModelName = "Barco";
+            ModelName = "A/Ship";
             SoundShotName = "Shot";
             _game = game;
             SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
-            initialScale = 0.03f;
+            initialScale = 0.05f;
         }
 
         public void clearVariable(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed)
@@ -102,8 +103,7 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
-            Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
-            TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "TEST1");
+            Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "ShipPBR");
             foreach (var modelMesh in modelo.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
@@ -137,6 +137,21 @@ namespace TGC.MonoGame.TP.Objects
             Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
             foreach (var modelMesh in modelo.Meshes)
             {
+                try
+                {
+                    TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                               modelMesh.Name +
+                                                               "_DefaultMaterial_BaseColor");
+                    Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
+                    TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                                modelMesh.Name +
+                                                                "_DefaultMaterial_Normal");
+                    Effect.Parameters["NormalTexture"]?.SetValue(TextureShip);
+                    TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                                modelMesh.Name +
+                                                                "_DefaultMaterial_Metallic");
+                    Effect.Parameters["metallicTexture"]?.SetValue(TextureShip);
+                }catch (ContentLoadException e) { }
                 // We set the main matrices for each mesh to draw
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
                 // World is used to transform from model space to world space

@@ -44,10 +44,11 @@ namespace TGC.MonoGame.TP.Objects
                 meshPart.Effect = effect;
         }
 
-        public void Draw()
+        public void Draw(String NameEffect )
         {
             var World =  Matrix.CreateRotationX(-(float)Math.PI/2)*Matrix.CreateScale(50f) *
                          Matrix.CreateTranslation(Position);
+            effect.CurrentTechnique = effect.Techniques[NameEffect];
             effect.Parameters["ambientColor"]?.SetValue(_game.KAColor);
             effect.Parameters["diffuseColor"]?.SetValue(_game.KDColor);
             effect.Parameters["specularColor"]?.SetValue(_game.KSColor);

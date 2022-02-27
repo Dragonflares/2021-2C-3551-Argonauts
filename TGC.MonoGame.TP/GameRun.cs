@@ -74,13 +74,13 @@ namespace TGC.MonoGame.TP
                 {
                     if (Game.EnemyShips[eShip].Life > 0)
                     {
-                        Game.EnemyShips[eShip].Draw();
+                        Game.EnemyShips[eShip].Draw(nameEffect);
                     }
                 }
 
                 for (int isla = 0; isla < Game.cantIslas; isla++)
                 {
-                    Game.Islas[isla].Draw();
+                    Game.Islas[isla].Draw(nameEffect);
                 }
 
                 if (Game.Camera.CanShoot)
