@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,6 +38,7 @@ namespace TGC.MonoGame.TP
         private float Shininess = 7;
         private Effect Effect;
         private Texture2D TextureShip;
+        private List<String> NotTexture = new List<String>();
         public Menu(TGCGame game)
         {
             Game = game;
@@ -87,6 +89,7 @@ namespace TGC.MonoGame.TP
             foreach (var modelMesh in Barco.Meshes)
             {
                 // We set the main matrices for each mesh to draw
+                if (!NotTexture.Contains( modelMesh.Name)){
                 try
                 {
                     TextureShip = Game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
@@ -101,7 +104,12 @@ namespace TGC.MonoGame.TP
                                                                modelMesh.Name +
                                                                "_DefaultMaterial_Metallic");
                     Effect.Parameters["metallicTexture"]?.SetValue(TextureShip);
-                }catch (ContentLoadException e) { }
+                }
+                catch (ContentLoadException e)
+                {
+                    NotTexture.Add(modelMesh.Name);
+                }
+                }
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
                 Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.ViewSun*Game.ProjectionSun);
                 // World is used to transform from model space to world space

@@ -70,7 +70,7 @@ namespace TGC.MonoGame.TP
         public SkyBox SkyBox;
         public Effect basicEffect;
         public Texture2D islasTexture;
-        public string GameState = "PLAY"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
+        public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
         public Vector3 SunPosition = new Vector3(-200f, 1000, 100);
         public SunBox SunBox;
         public Vector2 LimitSpaceGame = new Vector2(5000, 7000);

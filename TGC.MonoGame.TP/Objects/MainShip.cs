@@ -54,6 +54,8 @@ namespace TGC.MonoGame.TP.Objects
         private Texture2D TextureShip;
 
         private float Shininess = 7;
+        
+        private List<String> NotTexture = new List<String>();
         //private Vector3 PositionAnterior;
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
@@ -64,7 +66,7 @@ namespace TGC.MonoGame.TP.Objects
             maxspeed = MaxSpeed;
             maxacceleration = 0.1f;
             anguloDeGiro = 0f;
-            anguloInicial = (float) (Math.PI/2);
+            anguloInicial = -(float) (Math.PI/2);
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
@@ -86,7 +88,7 @@ namespace TGC.MonoGame.TP.Objects
             maxspeed = MaxSpeed;
             maxacceleration = 0.1f;
             anguloDeGiro = 0f;
-            anguloInicial = (float) (Math.PI/2);
+            anguloInicial = -(float) (Math.PI/2);
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
@@ -137,21 +139,29 @@ namespace TGC.MonoGame.TP.Objects
             Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
             foreach (var modelMesh in modelo.Meshes)
             {
-                try
+                if (!NotTexture.Contains(modelMesh.Name))
                 {
-                    TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
-                                                               modelMesh.Name +
-                                                               "_DefaultMaterial_BaseColor");
-                    Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
-                    TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
-                                                                modelMesh.Name +
-                                                                "_DefaultMaterial_Normal");
-                    Effect.Parameters["NormalTexture"]?.SetValue(TextureShip);
-                    TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
-                                                                modelMesh.Name +
-                                                                "_DefaultMaterial_Metallic");
-                    Effect.Parameters["metallicTexture"]?.SetValue(TextureShip);
-                }catch (ContentLoadException e) { }
+                    try
+                    {
+                        TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                                    modelMesh.Name +
+                                                                    "_DefaultMaterial_BaseColor");
+                        Effect.Parameters["baseTexture"]?.SetValue(TextureShip);
+                        TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                                    modelMesh.Name +
+                                                                    "_DefaultMaterial_Normal");
+                        Effect.Parameters["NormalTexture"]?.SetValue(TextureShip);
+                        TextureShip = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "A/textures/" +
+                                                                    modelMesh.Name +
+                                                                    "_DefaultMaterial_Metallic");
+                        Effect.Parameters["metallicTexture"]?.SetValue(TextureShip);
+                    }
+                    catch (ContentLoadException e)
+                    {
+                        NotTexture.Add(modelMesh.Name);
+                    }
+                }
+
                 // We set the main matrices for each mesh to draw
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
                 // World is used to transform from model space to world space
