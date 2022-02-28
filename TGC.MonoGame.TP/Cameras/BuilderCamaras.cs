@@ -108,8 +108,10 @@ namespace TGC.MonoGame.Samples.Cameras
                 }
             }
 
-            Cameras[0].Position = MainShip.Position + (float)60*new Vector3(MathF.Sin(MainShip.anguloDeGiro), 4,MathF.Cos(MainShip.anguloDeGiro));
-            Cameras[1].Position = MainShip.Position + (float)800*new Vector3(MathF.Sin((float) MainShip.anguloDeGiro), (float)0.25,MathF.Cos(MainShip.anguloDeGiro));
+            Cameras[0].Position = MainShip.Position + (float)75*new Vector3(MathF.Sin(MainShip.anguloDeGiro), 4.5f,MathF.Cos(MainShip.anguloDeGiro));
+            Cameras[1].Position = MainShip.Position +
+                                  (float) 600 * new Vector3(MathF.Sin((float) MainShip.anguloDeGiro), (float) 0.25,
+                                      MathF.Cos(MainShip.anguloDeGiro));
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
             Cameras[3].SetPosition(MainShip.Position);
             CanShoot = CurrentCamera.CanShoot;

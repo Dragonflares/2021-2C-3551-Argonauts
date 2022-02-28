@@ -161,7 +161,7 @@ namespace TGC.MonoGame.TP
             Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
             Life = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida");
             Life2 = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida 3");
-            //basicEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            basicEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             islasTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
             Islas = new islas[cantIslas];
             for (int isla = 0; isla < cantIslas; isla++)
