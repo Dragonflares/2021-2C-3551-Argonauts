@@ -31,7 +31,7 @@ namespace TGC.MonoGame.Samples.Cameras
             CalculateView();
         }
 
-        public float MovementSpeed { get; set; } = 100f;
+        public float MovementSpeed { get; set; } = 200f;
         public float MouseSensitivity { get; set; } = 5f;
 
         private void CalculateView()

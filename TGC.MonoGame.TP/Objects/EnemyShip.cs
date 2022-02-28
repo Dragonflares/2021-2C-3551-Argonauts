@@ -47,6 +47,8 @@ namespace TGC.MonoGame.TP.Objects
         private bool Active;
         private Effect Effect;
         private String ModelTexture;
+        private String ModelTextureNormalMap;
+        private String ModelTextureMetallic;
         private Texture2D texture;
         private Texture2D textureNormalMap;
         private Texture2D textureMetallic;
@@ -61,7 +63,9 @@ namespace TGC.MonoGame.TP.Objects
                 initialScale = 1 ;
                 anguloInicial = 0;
                 Kspecular = 1f;
-
+                ModelTexture = "Barco2/Textures/rusted_metal_26_68_diffuse";
+                ModelTextureNormalMap = "Barco2/Textures/rusted_metal_26_68_normal";
+                ModelTextureMetallic = "Barco2/Textures/rusted_metal_26_68_height";
             }
             else
             {   //Barco rojo
@@ -69,7 +73,9 @@ namespace TGC.MonoGame.TP.Objects
                 initialScale = 1 ;
                 anguloInicial = (float)Math.PI/2;;
                 Kspecular = 0.1f;
-
+                ModelTexture = "textures/boat_diffuse";
+                ModelTextureNormalMap = "textures/boat_normal";
+                ModelTextureMetallic = "textures/boat_gloss";
             }
             speed = 0;
             Position = initialPosition;
@@ -111,9 +117,9 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
-            texture = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "Barco2/Textures/rusted_metal_26_68_diffuse");
-            textureMetallic = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "Barco2/Textures/rusted_metal_26_68_height");
-            textureNormalMap = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "Barco2/Textures/rusted_metal_26_68_normal");
+            texture = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + ModelTexture);
+            textureMetallic = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + ModelTextureMetallic);
+            textureNormalMap = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + ModelTextureNormalMap);
             var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
             temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
             // Create an Oriented Bounding Box from the AABB
