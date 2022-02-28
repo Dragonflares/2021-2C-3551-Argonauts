@@ -48,6 +48,8 @@ namespace TGC.MonoGame.TP.Objects
         private Effect Effect;
         private String ModelTexture;
         private Texture2D texture;
+        private Texture2D textureNormalMap;
+        private Texture2D textureMetallic;
         public EnemyShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
             var rnd = new Random();
@@ -58,7 +60,6 @@ namespace TGC.MonoGame.TP.Objects
                 ModelName = "Barco2/Barco2";
                 initialScale = 1 ;
                 anguloInicial = 0;
-                ModelTexture = "Barco2";
                 Kspecular = 1f;
 
             }
@@ -67,7 +68,6 @@ namespace TGC.MonoGame.TP.Objects
                 ModelName = "Barco3";
                 initialScale = 1 ;
                 anguloInicial = (float)Math.PI/2;;
-                ModelTexture = "Barco2";
                 Kspecular = 0.1f;
 
             }
@@ -111,8 +111,9 @@ namespace TGC.MonoGame.TP.Objects
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
             cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
-            texture = _game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + ModelTexture);
-            
+            texture = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "Barco2/Textures/rusted_metal_26_68_diffuse");
+            textureMetallic = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "Barco2/Textures/rusted_metal_26_68_height");
+            textureNormalMap = _game.Content.Load<Texture2D>(TGCGame.ContentFolder3D + "Barco2/Textures/rusted_metal_26_68_normal");
             var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(modelo);
             temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, initialScale);
             // Create an Oriented Bounding Box from the AABB
@@ -122,7 +123,7 @@ namespace TGC.MonoGame.TP.Objects
             // Then set its orientation!
             ShipBox.Orientation = Matrix.CreateRotationY(anguloInicial);
             
-            Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "Ship");
+            Effect = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "ShipPBR");
             foreach (var modelMesh in modelo.Meshes)
             foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
@@ -145,6 +146,8 @@ namespace TGC.MonoGame.TP.Objects
             modelo.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
             Effect.CurrentTechnique = Effect.Techniques[NameEffect];
             Effect.Parameters["baseTexture"]?.SetValue(texture);
+            Effect.Parameters["NormalTexture"]?.SetValue(textureNormalMap);
+            Effect.Parameters["metallicTexture"]?.SetValue(textureMetallic);
             Effect.Parameters["KAmbient"]?.SetValue(1f);
             Effect.Parameters["KDiffuse"]?.SetValue(1f);
             Effect.Parameters["KSpecular"]?.SetValue(Kspecular);
