@@ -139,7 +139,7 @@ namespace TGC.MonoGame.TP
             var LightCameraFarPlaneDistance = 3000f;
             ProjectionSun = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2,1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance);*/
             
-            var LightCameraFarPlaneDistance = 10000f;
+            var LightCameraFarPlaneDistance = 20000f;
 
             var LightCameraNearPlaneDistance = 2f;
             TargetLightCamera = new TargetCamera(1f,SunPosition, new Vector3(0,0,0));
