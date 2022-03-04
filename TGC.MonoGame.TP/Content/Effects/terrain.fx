@@ -28,8 +28,10 @@ float shininess;
 
 float KReflection;
 float KFoam;
-static const float modulatedEpsilon = 0.000000000000041200182749889791011810302734375;
-static const float maxEpsilon = 0.00000000000000000000023200045689009130001068115234375;
+//static const float modulatedEpsilon = 0.000000000041200182749889791011810302734375;
+//static const float maxEpsilon = 0.000000000000000023200045689009130001068115234375;
+static const float modulatedEpsilon = 0.0000041200182749889791011810302734375;
+static const float maxEpsilon = 0.0000002320045689009130001068115234375;
 texture shadowMap;
 sampler2D shadowMapSampler =
 sampler_state
@@ -159,7 +161,7 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
     output.Position = mul(viewPosition, Projection);
     output.TextureCoordinates = input.TextureCoordinates;
-    output.ScreenSpacePosition = mul(input.Position, WorldViewProjection);
+    output.ScreenSpacePosition = mul(output.Position, WorldViewProjectionSun);
     output.LightSpacePosition = mul(output.WorldPosition, LightViewProjection);
     return output;
 }
@@ -197,8 +199,7 @@ float4 calcularSombra(float3 colorCalculado, VS_OUTPUT input){
 	
     float4 baseColor = float4(colorCalculado,1);
     baseColor.rgb *= 0.5 + 0.5 * notInShadow;
-    //return baseColor;
-    return float4(colorCalculado,1);
+    return baseColor;
 }
 float4 calcularRefleccion(float3 colorCalculado, VS_OUTPUT input){
     //Normalizar vectores
@@ -272,15 +273,25 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
 DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
 {
 	DepthPassVertexShaderOutput output;
-	output.Position = mul(input.Position, WorldViewProjectionSun);
-	output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
+	float4 worldPosition = mul(input.Position, World);
+    float3 wave1 = createWave(4, 5, float2(0.5, 0.3), 40, 160, 3, 10, worldPosition);
+    float3 wave2 = createWave(8, 5, float2(0.8, -0.4), 12, 120, 1.2, 20, worldPosition);
+    float3 wave3 = createWave(4, 5, float2(0.3, 0.2), 2, 90, 5, 25, worldPosition);
+    float3 wave4 = createWave(2, 5, float2(0.4, 0.25), 2, 60, 15, 15, worldPosition);
+    float3 wave5 = createWave(6, 5, float2(0.1, 0.8), 20, 250, 2, 40, worldPosition);
+    float3 wave6 = createWave(4, 5, float2(-0.5, -0.3), 0.5, 8, 0.2, 4, worldPosition);
+    float3 wave7 = createWave(8, 5, float2(-0.8, 0.4), 0.3, 5, 0.3, 6, worldPosition);
+    worldPosition.xyz += (wave1 + wave2 + wave3 + wave4 + wave5 + wave6 + wave7) / 7;
+    float4 viewPosition = mul(worldPosition, View);
+    output.Position = mul(viewPosition, Projection);
+	output.ScreenSpacePosition = mul(output.Position, WorldViewProjectionSun);
 	return output;
 }
 
-float4 ps_RenderTerrainDepth(DepthPassVertexShaderOutput input) : COLOR0
+float4 ps_RenderTerrainDepth(VS_OUTPUT input) : COLOR0
 {
     float depth = input.ScreenSpacePosition.z / input.ScreenSpacePosition.w;
-    return float4(depth, depth, depth, 1.0);
+    return float4(1, 1, 1, 1);
 }
 technique DepthMap
 {
