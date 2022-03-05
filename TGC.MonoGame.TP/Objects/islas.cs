@@ -67,7 +67,7 @@ namespace TGC.MonoGame.TP.Objects
                 effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
                 // WorldViewProjection is used to transform from model space to clip space
                 effect.Parameters["WorldViewProjection"].SetValue(World *_game.Camera.View * _game.Camera.Projection);
-
+                effect.Parameters["WorldViewProjectionSun"]?.SetValue(World*_game.TargetLightCamera.View*_game.TargetLightCamera.Projection);
                 // Once we set these matrices we draw
                 mesh.Draw();
             }

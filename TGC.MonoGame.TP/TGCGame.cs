@@ -74,7 +74,7 @@ namespace TGC.MonoGame.TP
         public Vector3 SunPosition = new Vector3(-200f, 1000, 100);
         public SunBox SunBox;
         public Vector2 LimitSpaceGame = new Vector2(5000, 7000);
-
+        public TargetCamera TargetLightCamera;
         public Vector3 KAColor = new Vector3(0, 0, 0.4f);
         //public Vector3 KDColor = new Vector3(0, 0, 0.2f);
         public Vector3 KDColor = new Vector3(1, 1, 1);
@@ -130,13 +130,22 @@ namespace TGC.MonoGame.TP
                 new Vector3(-1500f, 0f, 4000f) };
 
             cantIslas = posicionesIslas.Length;
+            /*
             var FrontDirection = Vector3.Normalize(Vector3.Zero - SunPosition);
             var RightDirection = Vector3.Normalize(Vector3.Cross(Vector3.Up, FrontDirection));
             var UpDirection = Vector3.Cross(FrontDirection, RightDirection);
             ViewSun = Matrix.CreateLookAt(SunPosition, SunPosition + FrontDirection, UpDirection);
             var LightCameraNearPlaneDistance = 5f;
             var LightCameraFarPlaneDistance = 3000f;
-            ProjectionSun = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2,1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance);
+            ProjectionSun = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2,1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance);*/
+            
+            var LightCameraFarPlaneDistance = 20000f;
+
+            var LightCameraNearPlaneDistance = 2f;
+            TargetLightCamera = new TargetCamera(1f,SunPosition, new Vector3(0,0,0));
+            TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
+                MathHelper.PiOver2);
+            
             CubeMapCamera = new StaticCamera(1f, new Vector3(0,0,0), Vector3.UnitX, Vector3.Up);
             CubeMapCamera.BuildProjection(1f, 1f, 3000f, MathHelper.PiOver2);
             base.Initialize();
@@ -198,9 +207,9 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            SunPosition = new Vector3(MathF.Cos(ElapsedTime) * 5000f, 2000f, MathF.Sin(ElapsedTime) * 5000f);
             if (GameState == "START" || MainShip.Life <=0)
             {
+                SunPosition = new Vector3((MathF.Cos(ElapsedTime)*2-1)*500 + 6000f, 1000f, (2*MathF.Sin(ElapsedTime)-1)*500  -1000f);
                 if (MediaPlayer.State != MediaState.Playing )
                 {
                     MediaPlayer.Play(menu.Song, new TimeSpan(0,0,2));
@@ -211,6 +220,7 @@ namespace TGC.MonoGame.TP
 
             if (GameState == "PLAY" || GameState == "RESUME")
             {
+                SunPosition = new Vector3(MathF.Cos(ElapsedTime) * 5000f, 5000f, MathF.Sin(ElapsedTime) * 5000f);
                 if (MediaPlayer.State != MediaState.Playing )
                 {
                     MediaPlayer.Play(Song);
@@ -218,7 +228,8 @@ namespace TGC.MonoGame.TP
                 IsMouseVisible = false;
                 gameRun.Update(gameTime);
             }
-
+            TargetLightCamera.Position = SunPosition;
+            TargetLightCamera.BuildView();
             if (Keyboard.GetState().IsKeyDown(Keys.Escape) && GameState == "END")
                 //Salgo del juego.
                 Exit();
@@ -248,8 +259,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
             if (MainShip.Life <= 0)
+            {
                 GameState = "GAMEOVER";
-                menu.Draw(gameTime,"Retry","DepthMap" );
+                menu.Draw(gameTime, "Retry", "DepthMap");
+            }
+
             if (GameState == "START")
                 menu.Draw(gameTime,"Play", "DepthMap");
             if (GameState == "PLAY" || GameState == "RESUME")
@@ -269,8 +283,11 @@ namespace TGC.MonoGame.TP
                 // Draw our scene. Do not draw our tank as it would be occluded by itself 
                 // (if it has backface culling on)
                 if (MainShip.Life <= 0)
+                {
                     GameState = "GAMEOVER";
-                menu.Draw(gameTime,"Retry","EnviromentMap" );
+                    menu.Draw(gameTime, "Retry", "EnviromentMap");
+                }
+
                 if (GameState == "START")
                     menu.Draw(gameTime,"Play", "EnviromentMap");
                 if (GameState == "PLAY" || GameState == "RESUME")
@@ -280,8 +297,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             if (MainShip.Life <= 0)
+            {
                 GameState = "GAMEOVER";
-                menu.Draw(gameTime,"Retry","ShadowMap" );
+                menu.Draw(gameTime, "Retry", "ShadowMap");
+            }
+
             if (GameState == "START")
                 menu.Draw(gameTime,"Play", "ShadowMap");
             if (GameState == "PLAY" || GameState == "RESUME")

@@ -29,6 +29,11 @@ namespace TGC.MonoGame.Samples.Cameras
         private Point screenCenter;
         private float windowHeight;
         private float windowWidth;
+        
+        public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition) : base(aspectRatio)
+        {
+            BuildView(position, targetPosition);
+        }
 
         /// <summary>
         ///     Camera looking at a particular direction, which has the up vector (0,1,0).

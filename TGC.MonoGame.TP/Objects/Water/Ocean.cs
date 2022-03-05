@@ -54,17 +54,29 @@ namespace TGC.MonoGame.TP.Objects.Water
         /// </summary>
         public void Draw(Matrix World, Matrix View, Matrix Projection, float time, String nameEffect)
         {
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Game.GraphicsDevice.RasterizerState = rasterizerState;
             LoadHeightmap(Effect.GraphicsDevice, 100, 4, Vector3.Zero, time);
             Effect.CurrentTechnique = Effect.Techniques[nameEffect];
             var graphicsDevice = Effect.GraphicsDevice;
-            Effect.Parameters["WorldViewProjectionSun"]?.SetValue(World* Game.ViewSun * Game.ProjectionSun);
+            Effect.Parameters["WorldViewProjectionSun"]?.SetValue(World* Game.TargetLightCamera.View * Game.TargetLightCamera.Projection);
             Effect.Parameters["WorldViewProjection"]?.SetValue(World* Game.Camera.View * Game.Camera.Projection);
             Effect.Parameters["shadowMapSize"]?.SetValue(Vector2.One * TGCGame.ShadowmapSize);
             Effect.Parameters["shadowMap"]?.SetValue(Game.ShadowMapRenderTarget);
-            Effect.Parameters["LightViewProjection"]?.SetValue(Game.ViewSun * Game.ProjectionSun);
+            Effect.Parameters["LightViewProjection"]?.SetValue(Game.TargetLightCamera.View * Game.TargetLightCamera.Projection);
             Effect.Parameters["World"]?.SetValue(World);
-            Effect.Parameters["View"]?.SetValue(View);
-            Effect.Parameters["Projection"]?.SetValue(Projection);
+            if (nameEffect == "DepthMap")
+            {
+                Effect.Parameters["View"]?.SetValue(Game.TargetLightCamera.View);
+                Effect.Parameters["Projection"]?.SetValue(Game.TargetLightCamera.Projection);
+            }
+            else
+            {
+                Effect.Parameters["View"]?.SetValue(View);
+                Effect.Parameters["Projection"]?.SetValue(Projection);
+            }
+
             Effect.Parameters["Time"]?.SetValue(time);
             Effect.Parameters["cameraPosition"]?.SetValue(Game.Camera.Position);
             Effect.Parameters["sunPosition"]?.SetValue(Game.SunPosition);

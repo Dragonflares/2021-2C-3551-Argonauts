@@ -111,7 +111,7 @@ namespace TGC.MonoGame.TP
                 }
                 }
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * matWorld;
-                Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.ViewSun*Game.ProjectionSun);
+                Effect.Parameters["WorldViewProjectionSun"]?.SetValue(worldMatrix*Game.TargetLightCamera.View*Game.TargetLightCamera.Projection);
                 // World is used to transform from model space to world space
                 Effect.Parameters["World"]?.SetValue(worldMatrix);
                 // InverseTransposeWorld is used to rotate normals
@@ -150,6 +150,7 @@ namespace TGC.MonoGame.TP
             if (NameEffect != "EnviromentMap")
             {
                 DrawShip(Barco, (float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
+                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, NameEffect);
             }
             if (NameEffect == "ShadowMap"){
                 spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
