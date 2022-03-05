@@ -220,7 +220,7 @@ namespace TGC.MonoGame.TP
 
             if (GameState == "PLAY" || GameState == "RESUME")
             {
-                SunPosition = new Vector3(MathF.Cos(ElapsedTime) * 5000f, 2000f, MathF.Sin(ElapsedTime) * 5000f);
+                SunPosition = new Vector3(MathF.Cos(ElapsedTime) * 5000f, 5000f, MathF.Sin(ElapsedTime) * 5000f);
                 if (MediaPlayer.State != MediaState.Playing )
                 {
                     MediaPlayer.Play(Song);
@@ -259,8 +259,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
             if (MainShip.Life <= 0)
+            {
                 GameState = "GAMEOVER";
-                menu.Draw(gameTime,"Retry","DepthMap" );
+                menu.Draw(gameTime, "Retry", "DepthMap");
+            }
+
             if (GameState == "START")
                 menu.Draw(gameTime,"Play", "DepthMap");
             if (GameState == "PLAY" || GameState == "RESUME")
@@ -280,8 +283,11 @@ namespace TGC.MonoGame.TP
                 // Draw our scene. Do not draw our tank as it would be occluded by itself 
                 // (if it has backface culling on)
                 if (MainShip.Life <= 0)
+                {
                     GameState = "GAMEOVER";
-                menu.Draw(gameTime,"Retry","EnviromentMap" );
+                    menu.Draw(gameTime, "Retry", "EnviromentMap");
+                }
+
                 if (GameState == "START")
                     menu.Draw(gameTime,"Play", "EnviromentMap");
                 if (GameState == "PLAY" || GameState == "RESUME")
@@ -291,8 +297,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             if (MainShip.Life <= 0)
+            {
                 GameState = "GAMEOVER";
-                menu.Draw(gameTime,"Retry","ShadowMap" );
+                menu.Draw(gameTime, "Retry", "ShadowMap");
+            }
+
             if (GameState == "START")
                 menu.Draw(gameTime,"Play", "ShadowMap");
             if (GameState == "PLAY" || GameState == "RESUME")

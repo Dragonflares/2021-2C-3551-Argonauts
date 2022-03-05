@@ -55,7 +55,6 @@ namespace TGC.MonoGame.TP
                         20000f),
                     Vector3.UnitX * 20 + new Vector3(0, -200, 0));
                 Game.GraphicsDevice.RasterizerState = originalRasterizerState;
-                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, nameEffect);
             }
             if (nameEffect == "EnviromentMap")
             {
@@ -69,6 +68,7 @@ namespace TGC.MonoGame.TP
 
             if (nameEffect != "EnviromentMap")
             {
+                Game.terrain.Draw(Matrix.Identity, Game.Camera.View, Game.Camera.Projection,(float)gameTime.TotalGameTime.TotalSeconds, nameEffect);
                 Game.MainShip.Draw(nameEffect);
                 for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
                 {

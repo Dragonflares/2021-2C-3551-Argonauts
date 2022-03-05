@@ -30,8 +30,8 @@ float KReflection;
 float KFoam;
 //static const float modulatedEpsilon = 0.000000000041200182749889791011810302734375;
 //static const float maxEpsilon = 0.000000000000000023200045689009130001068115234375;
-static const float modulatedEpsilon = 0.0000041200182749889791011810302734375;
-static const float maxEpsilon = 0.0000002320045689009130001068115234375;
+static const float modulatedEpsilon = 0.00000041200182749889791011810302734375;
+static const float maxEpsilon = 0.00000002320045689009130001068115234375;
 texture shadowMap;
 sampler2D shadowMapSampler =
 sampler_state

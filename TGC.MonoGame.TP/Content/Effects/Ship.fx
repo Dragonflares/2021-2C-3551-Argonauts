@@ -100,8 +100,8 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
 {
 	DepthPassVertexShaderOutput output;
-	output.Position = mul(input.Position, WorldViewProjection);
-	output.ScreenSpacePosition = mul(input.Position, WorldViewProjection);
+	output.Position = mul(input.Position, WorldViewProjectionSun);
+	output.ScreenSpacePosition = mul(input.Position, WorldViewProjectionSun);
 	return output;
 }
 float4 MainPSDepth(DepthPassVertexShaderOutput input) : COLOR0
