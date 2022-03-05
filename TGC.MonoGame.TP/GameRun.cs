@@ -30,10 +30,10 @@ namespace TGC.MonoGame.TP
         {
             Game = game;
             time = 0;
-            View = Matrix.CreateLookAt(new Vector3(0,0,0), new Vector3(1,0,0), Vector3.Up);
+            View = Matrix.CreateLookAt(new Vector3(0,-200,0), new Vector3(1,0,0), Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Game.GraphicsDevice.Viewport.AspectRatio, 0.1f,
-                    1000f);
+                    8000f);
             
         }
 
